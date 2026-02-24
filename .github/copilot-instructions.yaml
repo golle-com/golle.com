@@ -1,0 +1,36 @@
+project:
+  name: real-debrid-mobile
+  stack:
+    - vite
+    - react
+    - typescript
+    - bootstrap-cdn
+  testing:
+    unit: vitest + react-testing-library
+    system: playwright
+
+ui:
+  bootstrap_only: true
+  custom_css: false
+  theme_picker:
+    enabled: true
+    initial_themes:
+      - light
+      - dark
+
+api:
+  base_url: https://api.real-debrid.com/rest/1.0
+  auth:
+    primary_flow: opensource_device
+    allow_legacy_user_pass: false
+  client_secret_in_browser: false
+
+files:
+  assets_images_dir: assets/images
+  tests_dir: tests
+
+notes:
+  - Use only Bootstrap classes in markup.
+  - Prefer fetch with JSON parsing and robust error handling.
+  - Keep tokens in browser storage only.
+  - Avoid non-ASCII unless already present.

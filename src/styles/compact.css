@@ -1,0 +1,74 @@
+/* Compact density tweaks for small screens. */
+.dense-table-wrap {
+  margin: 0 -0.5rem;
+}
+
+.dense-table {
+  margin-bottom: 0;
+}
+
+.dense-table > :not(caption) > * > * {
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  padding-left: 0;
+  padding-right: 0.5rem;
+}
+
+.dense-table th:first-child,
+.dense-table td:first-child {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+.dense-table .form-check-input {
+  margin: 0;
+}
+
+.scroll-to-top-button {
+  width: 3rem;
+  height: 3rem;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 1100;
+}
+
+.density-compact .container,
+.density-compact .container-fluid {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.density-compact .card {
+  border-radius: 0.5rem;
+}
+
+.density-compact .card-header,
+.density-compact .card-body,
+.density-compact .card-footer {
+  padding: 0.5rem 0.75rem;
+}
+
+.density-compact .navbar {
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+}
+
+.density-compact .table > :not(caption) > * > * {
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  padding-left: 0;
+  padding-right: 0.5rem;
+}
+
+.density-compact .form-control,
+.density-compact .form-select,
+.density-compact .btn {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.density-compact .table .btn.btn-outline-secondary,
+.density-compact .table .btn.btn-outline-danger {
+  border: 0;
+}
+
