@@ -45,12 +45,12 @@ export default function TokenPaste({ onTokensSaved, onAuthSuccess, onAuthError }
   const isDisabled = accessToken.trim().length === 0 || isLoading
 
   return (
-    <div className="card shadow-sm">
-      <div className="card-header bg-body">
-        <h5 className="mb-0">Use Existing Token</h5>
+    <div className="card">
+      <div className="card-header">
+        <h5>Use Existing Token</h5>
       </div>
       <div className="card-body">
-        <div className="row g-3">
+        <div className="row">
           <div className="col-12">
             <label className="form-label">Access Token ( <a target="_blank" href="https://real-debrid.com/apitoken">Get Here</a> )</label>
             <input

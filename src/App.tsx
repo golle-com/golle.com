@@ -6,6 +6,8 @@ import TokenPaste from './features/auth/TokenPaste'
 import DownloadsPanel from './features/downloads/DownloadsPanel'
 import TorrentsPanel from './features/torrents/TorrentsPanel'
 import AccountPanel from './features/account/AccountPanel'
+import UnrestrictPanel from './features/unrestrict/UnrestrictPanel'
+import HostsPanel from './features/hosts/HostsPanel'
 import { clearAuthTokens, loadAuthTokens, type AuthTokens } from './lib/storage'
 
 type ThemeOption = {
@@ -105,13 +107,6 @@ const plannedViews: PlannedView[] = [
     description: 'Check and unrestrict links and containers.',
   },
   {
-    id: 'traffic',
-    label: 'Traffic',
-    path: '/traffic',
-    apiNamespace: '/traffic',
-    description: 'Traffic usage and per-hoster details.',
-  },
-  {
     id: 'streaming',
     label: 'Streaming',
     path: '/streaming',
@@ -136,23 +131,23 @@ const plannedViews: PlannedView[] = [
 
 const navViews = plannedViews.filter((view) => view.id !== 'streaming')
 
-const implementedPaths = new Set(['/auth', '/downloads', '/torrents', '/account'])
+const implementedPaths = new Set(['/auth', '/downloads', '/torrents', '/unrestrict', '/account', '/hosts'])
 const AUTH_PENDING_TOAST_ID = 'auth-pending'
 
 function ComingSoon({ label, apiNamespace, description }: PlannedView) {
   return (
-    <div className="card shadow-sm">
-      <div className="card-header bg-body">
-        <h5 className="mb-0">{label}</h5>
+    <div className="card">
+      <div className="card-header">
+        <h5>{label}</h5>
       </div>
       <div className="card-body">
-        <p className="mb-2 text-body-secondary">This view is planned but not wired up yet.</p>
-        <div className="d-flex flex-column gap-2">
+        <p>This view is planned but not wired up yet.</p>
+        <div>
           <div>
-            <span className="fw-semibold">API namespace:</span> {apiNamespace}
+            <strong>API namespace:</strong> {apiNamespace}
           </div>
           <div>
-            <span className="fw-semibold">Scope:</span> {description}
+            <strong>Scope:</strong> {description}
           </div>
         </div>
       </div>
@@ -258,20 +253,17 @@ function App() {
 
   return (
     <>
-      <div className="min-vh-100 bg-body density-compact">
+      <div>
         <nav className="navbar navbar-expand-lg bg-primary">
           <div className="container-fluid">
-            <a
-              className="navbar-brand d-flex align-items-center gap-2"
-              href="#"
-            >
+            <a className="navbar-brand" href="#">
               <i className="bi bi-cloud-arrow-down"></i>
               RD Mobile
             </a>
-            <div className="d-flex align-items-center gap-2">
+            <div>
               {authTokens ? (
-                <div className="d-flex align-items-center gap-2">
-                  <button className="btn btn-secondary btn-sm" type="button" onClick={handleSignOut}>
+                <div>
+                  <button className="btn btn-secondary" type="button" onClick={handleSignOut}>
                     Sign&nbsp;Out
                   </button>
                 </div>
@@ -307,7 +299,7 @@ function App() {
                 <span className="navbar-toggler-icon"></span>
               </button>
               <div className="collapse navbar-collapse" id="pageNav">
-                <div className="navbar-nav gap-1 py-2">
+                <div className="navbar-nav">
                   {navViews.map((view) => (
                     <NavLink
                       key={view.id}
@@ -315,7 +307,7 @@ function App() {
                       end
                       onClick={handleNavClick}
                       className={({ isActive }) =>
-                        `nav-link small px-2 py-1${isActive ? ' active' : ''}`
+                        `nav-link${isActive ? ' active' : ''}`
                       }
                     >
                       {view.label}
@@ -327,12 +319,12 @@ function App() {
           </nav>
         )}
 
-        <main className="container py-2 px-2 px-md-3">
+        <main className="container">
         <Routes>
           <Route
             path="/auth"
             element={
-              <div className="d-flex flex-column gap-3">
+              <div>
                 <TokenPaste
                   onTokensSaved={setAuthTokens}
                   onAuthSuccess={handleAuthSuccess}
@@ -376,6 +368,20 @@ function App() {
             }
           />
           <Route
+            path="/unrestrict"
+            element={
+              authTokens ? (
+                <UnrestrictPanel
+                  accessToken={authTokens?.accessToken ?? null}
+                  onLoadError={handleAuthError}
+                  onInfo={handleInfo}
+                />
+              ) : (
+                <Navigate to="/auth" replace />
+              )
+            }
+          />
+          <Route
             path="/account"
             element={
               authTokens ? (
@@ -383,6 +389,19 @@ function App() {
                   accessToken={authTokens?.accessToken ?? null}
                   onLoadError={handleAuthError}
                   onLoadWarning={handleWarning}
+                />
+              ) : (
+                <Navigate to="/auth" replace />
+              )
+            }
+          />
+          <Route
+            path="/hosts"
+            element={
+              authTokens ? (
+                <HostsPanel
+                  accessToken={authTokens?.accessToken ?? null}
+                  onLoadError={handleAuthError}
                 />
               ) : (
                 <Navigate to="/auth" replace />
@@ -410,7 +429,7 @@ function App() {
       </div>
       <button
         type="button"
-        className="btn btn-primary rounded-circle shadow-lg position-fixed scroll-to-top-button"
+        className="btn btn-primary"
         onClick={handleScrollToTop}
         aria-label="Scroll to top"
       >

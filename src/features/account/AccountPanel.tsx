@@ -72,71 +72,69 @@ export default function AccountPanel({ accessToken, onLoadError, onLoadWarning }
 
   if (isLoading) {
     return (
-      <div className="d-flex justify-content-center py-4">
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+      <div>
+        <p>Loading...</p>
       </div>
     )
   }
 
   if (errorMessage) {
     return (
-      <div className="alert alert-danger" role="alert">
+      <div role="alert">
         {errorMessage}
       </div>
     )
   }
 
   return (
-    <div className="card shadow-sm">
-      <div className="card-header bg-body">
-        <h5 className="mb-0">Account Information</h5>
-      </div>
-      <div className="card-body">
+    <section>
+      <header>
+        <h5>Account Information</h5>
+      </header>
+      <div>
         {userInfo && (
-          <div className="mb-3">
+          <section>
             <h6>User Info</h6>
-            <dl className="row">
-              <dt className="col-sm-3">ID</dt>
-              <dd className="col-sm-9">{userInfo.id}</dd>
-              <dt className="col-sm-3">Username</dt>
-              <dd className="col-sm-9">{userInfo.username}</dd>
+            <dl>
+              <dt>ID</dt>
+              <dd>{userInfo.id}</dd>
+              <dt>Username</dt>
+              <dd>{userInfo.username}</dd>
               {userInfo.email && (
                 <>
-                  <dt className="col-sm-3">Email</dt>
-                  <dd className="col-sm-9">{userInfo.email}</dd>
+                  <dt>Email</dt>
+                  <dd>{userInfo.email}</dd>
                 </>
               )}
             </dl>
-          </div>
+          </section>
         )}
         {(settings || settingsUnavailable) && (
-          <div>
+          <section>
             <h6>Settings</h6>
-            <dl className="row">
+            <dl>
               {(settingsUnavailable || settings?.avatar) && (
                 <>
-                  <dt className="col-sm-3">Avatar</dt>
-                  <dd className="col-sm-9">
+                  <dt>Avatar</dt>
+                  <dd>
                     {settingsUnavailable ? (
                       'Currently unavailable'
                     ) : (
-                      <img src={settings?.avatar} alt="Avatar" className="img-thumbnail" style={{ maxWidth: '100px' }} />
+                      <img src={settings?.avatar} alt="Avatar" />
                     )}
                   </dd>
                 </>
               )}
               {(settingsUnavailable || settings?.points !== undefined) && (
                 <>
-                  <dt className="col-sm-3">Points</dt>
-                  <dd className="col-sm-9">{settingsUnavailable ? 'Currently unavailable' : settings?.points}</dd>
+                  <dt>Points</dt>
+                  <dd>{settingsUnavailable ? 'Currently unavailable' : settings?.points}</dd>
                 </>
               )}
             </dl>
-          </div>
+          </section>
         )}
       </div>
-    </div>
+    </section>
   )
 }
