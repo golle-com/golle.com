@@ -257,7 +257,7 @@ function App() {
         <nav className="navbar navbar-expand-lg bg-primary">
           <div className="container-fluid">
             <a className="navbar-brand" href="#">
-              <i className="bi bi-cloud-arrow-down"></i>
+              <img src="/favicon.ico" alt="" width="24" height="24" />
               RD Mobile
             </a>
             <div>

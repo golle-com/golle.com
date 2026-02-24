@@ -30,7 +30,7 @@ files:
   tests_dir: tests
 
 notes:
-  - Use only Bootstrap classes in markup.
+  - Use only Bootstrap classes and do not use classes that describe style.
   - Prefer fetch with JSON parsing and robust error handling.
   - Keep tokens in browser storage only.
   - Avoid non-ASCII unless already present.
