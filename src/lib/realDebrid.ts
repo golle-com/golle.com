@@ -84,12 +84,6 @@ export type UserInfo = {
   expiration?: string
 }
 
-export type Settings = {
-  avatar?: string
-  points?: number
-  // Add other settings fields as needed
-}
-
 export type UnrestrictCheckResponse = {
   host?: string
   link?: string
@@ -316,18 +310,6 @@ export async function getUserInfo(accessToken: string) {
   })
 
   return parseJsonResponse<UserInfo>(response)
-}
-
-export async function getSettings(accessToken: string) {
-  const response = await fetch(`${API_BASE_URL}/settings`, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-  })
-
-  return parseJsonResponse<Settings>(response)
 }
 
 export async function getUnrestrictCheck(accessToken: string, link: string, password?: string) {

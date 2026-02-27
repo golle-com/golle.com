@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getSettings, getUserInfo, type RdError, type Settings, type UserInfo } from '../../lib/realDebrid'
+import { getUserInfo, type RdError, type UserInfo } from '../../lib/realDebrid'
 
 type AccountPanelProps = {
   accessToken: string | null
@@ -7,21 +7,14 @@ type AccountPanelProps = {
   onLoadWarning?: (message: string) => void
 }
 
-export default function AccountPanel({ accessToken, onLoadError, onLoadWarning }: AccountPanelProps) {
+export default function AccountPanel({ accessToken, onLoadError }: AccountPanelProps) {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
-  const [settings, setSettings] = useState<Settings | null>(null)
-  const [settingsUnavailable, setSettingsUnavailable] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-
-  const isSettingsUnavailableError = (error: RdError) =>
-    error.status === 403 && (error.error === 'not_allowed_method' || error.error_code === 4)
 
   const fetchData = useCallback(async () => {
     if (!accessToken) {
       setUserInfo(null)
-      setSettings(null)
-      setSettingsUnavailable(false)
       return
     }
 
@@ -31,21 +24,6 @@ export default function AccountPanel({ accessToken, onLoadError, onLoadWarning }
     try {
       const user = await getUserInfo(accessToken)
       setUserInfo(user)
-
-      try {
-        const userSettings = await getSettings(accessToken)
-        setSettings(userSettings)
-        setSettingsUnavailable(false)
-      } catch (settingsError) {
-        const rdSettingsError = settingsError as RdError
-        if (isSettingsUnavailableError(rdSettingsError)) {
-          setSettings(null)
-          setSettingsUnavailable(true)
-          onLoadWarning?.('Settings are currently unavailable.')
-        } else {
-          throw settingsError
-        }
-      }
     } catch (error) {
       const rdError = error as RdError
       const message = rdError.error || 'Failed to load account information.'
@@ -54,7 +32,7 @@ export default function AccountPanel({ accessToken, onLoadError, onLoadWarning }
     } finally {
       setIsLoading(false)
     }
-  }, [accessToken, onLoadError, onLoadWarning])
+  }, [accessToken, onLoadError])
 
   // Only fetch account data when accessToken changes or component mounts, not on every render
   const lastTokenRef = useRef<string | null>(null)
@@ -101,31 +79,6 @@ export default function AccountPanel({ accessToken, onLoadError, onLoadWarning }
                 <>
                   <dt>Email</dt>
                   <dd>{userInfo.email}</dd>
-                </>
-              )}
-            </dl>
-          </section>
-        )}
-        {(settings || settingsUnavailable) && (
-          <section>
-            <h6>Settings</h6>
-            <dl>
-              {(settingsUnavailable || settings?.avatar) && (
-                <>
-                  <dt>Avatar</dt>
-                  <dd>
-                    {settingsUnavailable ? (
-                      'Currently unavailable'
-                    ) : (
-                      <img src={settings?.avatar} alt="Avatar" />
-                    )}
-                  </dd>
-                </>
-              )}
-              {(settingsUnavailable || settings?.points !== undefined) && (
-                <>
-                  <dt>Points</dt>
-                  <dd>{settingsUnavailable ? 'Currently unavailable' : settings?.points}</dd>
                 </>
               )}
             </dl>
