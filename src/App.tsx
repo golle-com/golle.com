@@ -1,164 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Navigate, NavLink, Route, Routes, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify'
-import DeviceFlow from './features/auth/DeviceFlow'
-import TokenPaste from './features/auth/TokenPaste'
-import DownloadsPanel from './features/downloads/DownloadsPanel'
-import TorrentsPanel from './features/torrents/TorrentsPanel'
-import AccountPanel from './features/account/AccountPanel'
-import AboutPanel from './features/about/AboutPanel'
-import UnrestrictPanel from './features/unrestrict/UnrestrictPanel'
-import HostsPanel from './features/hosts/HostsPanel'
+import SideNavbar from './features/navigation/SideNavbar'
+import { themeOptions } from './features/navigation/themeOptions'
+import AppRoutes, { navViews } from './routes'
 import type { RdError } from './lib/realDebrid'
 import { clearAuthTokens, loadAuthTokens, type AuthTokens } from './lib/storage'
 
-type ThemeOption = {
-  id: string
-  label: string
-  href: string
-}
-
-type PlannedView = {
-  id: string
-  label: string
-  path: string
-  apiNamespace: string
-  description: string
-}
-
 const THEME_STORAGE_KEY = 'rd_theme'
-
-const themeOptions: ThemeOption[] = [
-  {
-    id: 'light',
-    label: 'Light',
-    href: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css',
-  },
-  {
-    id: 'dark',
-    label: 'Dark',
-    href: 'https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/darkly/bootstrap.min.css',
-  },
-  {
-    id: 'cosmo',
-    label: 'Cosmo',
-    href: 'https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/cosmo/bootstrap.min.css',
-  },
-  {
-    id: 'flatly',
-    label: 'Flatly',
-    href: 'https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/flatly/bootstrap.min.css',
-  },
-  {
-    id: 'litera',
-    label: 'Litera',
-    href: 'https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/litera/bootstrap.min.css',
-  },
-  {
-    id: 'lumen',
-    label: 'Lumen',
-    href: 'https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/lumen/bootstrap.min.css',
-  },
-  {
-    id: 'minty',
-    label: 'Minty',
-    href: 'https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/minty/bootstrap.min.css',
-  },
-  {
-    id: 'pulse',
-    label: 'Pulse',
-    href: 'https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/pulse/bootstrap.min.css',
-  },
-  {
-    id: 'sandstone',
-    label: 'Sandstone',
-    href: 'https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/sandstone/bootstrap.min.css',
-  },
-  {
-    id: 'united',
-    label: 'United',
-    href: 'https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/united/bootstrap.min.css',
-  },
-  {
-    id: 'yeti',
-    label: 'Yeti',
-    href: 'https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/yeti/bootstrap.min.css',
-  },
-]
-
-const plannedViews: PlannedView[] = [
-  {
-    id: 'downloads',
-    label: 'Downloads',
-    path: '/downloads',
-    apiNamespace: '/downloads',
-    description: 'List, open, and delete completed downloads.',
-  },
-  {
-    id: 'torrents',
-    label: 'Torrents',
-    path: '/torrents',
-    apiNamespace: '/torrents',
-    description: 'Manage torrent list, info, and file selection.',
-  },
-  {
-    id: 'unrestrict',
-    label: 'Unrestrict',
-    path: '/unrestrict',
-    apiNamespace: '/unrestrict',
-    description: 'Check and unrestrict links and containers.',
-  },
-  {
-    id: 'streaming',
-    label: 'Streaming',
-    path: '/streaming',
-    apiNamespace: '/streaming',
-    description: 'Transcoding links and media info lookup.',
-  },
-  {
-    id: 'hosts',
-    label: 'Hosts',
-    path: '/hosts',
-    apiNamespace: '/hosts',
-    description: 'Hoster support, availability status, and regex metadata.',
-  },
-  {
-    id: 'account',
-    label: 'Account',
-    path: '/account',
-    apiNamespace: '/user',
-    description: 'User profile and account details.',
-  },
-]
-
-const navViews = plannedViews.filter((view) => view.id !== 'streaming')
-
-const implementedPaths = new Set(['/auth', '/downloads', '/torrents', '/unrestrict', '/account', '/hosts'])
 const AUTH_PENDING_TOAST_ID = 'auth-pending'
 
 function isBadTokenError(error?: RdError) {
   return error?.error === 'bad_token'
-}
-
-function ComingSoon({ label, apiNamespace, description }: PlannedView) {
-  return (
-    <div className="card">
-      <div className="card-header">
-        <h5>{label}</h5>
-      </div>
-      <div className="card-body">
-        <p>This view is planned but not wired up yet.</p>
-        <div>
-          <div>
-            <strong>API namespace:</strong> {apiNamespace}
-          </div>
-          <div>
-            <strong>Scope:</strong> {description}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
 }
 
 function App() {
@@ -241,18 +94,6 @@ function App() {
     })
   }
 
-  const handleNavClick = () => {
-    const nav = document.getElementById('pageNav')
-    if (!nav) {
-      return
-    }
-    const bootstrap = (window as { bootstrap?: { Collapse?: { getOrCreateInstance?: (element: Element) => { hide: () => void } } } }).bootstrap
-    if (!bootstrap?.Collapse?.getOrCreateInstance) {
-      return
-    }
-    bootstrap.Collapse.getOrCreateInstance(nav).hide()
-  }
-
   const handleScrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -293,161 +134,17 @@ function App() {
           </div>
         </nav>
 
-        <nav className="navbar navbar-expand-md bg-light">
-          <div className="container-fluid">
-            <button
-              className="navbar-toggler"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#pageNav"
-              aria-controls="pageNav"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
-              <span className="navbar-toggler-icon"></span>
-            </button>
-            <div className="collapse navbar-collapse" id="pageNav">
-              <div className="navbar-na">
-                {authTokens
-                  ? navViews.map((view) => (
-                      <NavLink
-                        key={view.id}
-                        to={view.path}
-                        end
-                        onClick={handleNavClick}
-                        className={({ isActive }) =>
-                          `nav-link${isActive ? ' active' : ''}`
-                        }
-                      >
-                        {view.label}
-                      </NavLink>
-                    ))
-                  : null}
-                <NavLink
-                  to="/about"
-                  end
-                  onClick={handleNavClick}
-                  className={({ isActive }) =>
-                    `nav-link${isActive ? ' active' : ''}`
-                  }
-                >
-                  About
-                </NavLink>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <SideNavbar authTokens={Boolean(authTokens)} views={navViews} />
 
         <main className="container">
-        <Routes>
-          <Route
-            path="/auth"
-            element={
-              authTokens ? (
-                <Navigate to="/downloads" replace />
-              ) : (
-                <div>
-                  <TokenPaste
-                    onTokensSaved={setAuthTokens}
-                    onAuthSuccess={handleAuthSuccess}
-                    onAuthError={handleAuthError}
-                  />
-                  <DeviceFlow
-                    onTokensSaved={setAuthTokens}
-                    onAuthSuccess={handleAuthSuccess}
-                    onAuthError={handleAuthError}
-                    onInfo={handleInfo}
-                    onPendingInfo={handlePendingInfo}
-                  />
-                </div>
-              )
-            }
+          <AppRoutes
+            authTokens={authTokens}
+            setAuthTokens={setAuthTokens}
+            onAuthSuccess={handleAuthSuccess}
+            onAuthError={handleAuthError}
+            onInfo={handleInfo}
+            onPendingInfo={handlePendingInfo}
           />
-          <Route
-            path="/downloads"
-            element={
-              authTokens ? (
-                <DownloadsPanel
-                  accessToken={authTokens?.accessToken ?? null}
-                  onLoadError={handleAuthError}
-                />
-              ) : (
-                <Navigate to="/auth" replace />
-              )
-            }
-          />
-          <Route
-            path="/torrents"
-            element={
-              authTokens ? (
-                <TorrentsPanel
-                  accessToken={authTokens?.accessToken ?? null}
-                  onLoadError={handleAuthError}
-                  onInfo={handleInfo}
-                />
-              ) : (
-                <Navigate to="/auth" replace />
-              )
-            }
-          />
-          <Route
-            path="/unrestrict"
-            element={
-              authTokens ? (
-                <UnrestrictPanel
-                  accessToken={authTokens?.accessToken ?? null}
-                  onLoadError={handleAuthError}
-                  onInfo={handleInfo}
-                />
-              ) : (
-                <Navigate to="/auth" replace />
-              )
-            }
-          />
-          <Route
-            path="/account"
-            element={
-              authTokens ? (
-                <AccountPanel
-                  accessToken={authTokens?.accessToken ?? null}
-                  onLoadError={handleAuthError}
-                />
-              ) : (
-                <Navigate to="/auth" replace />
-              )
-            }
-          />
-          <Route
-            path="/hosts"
-            element={
-              authTokens ? (
-                <HostsPanel
-                  accessToken={authTokens?.accessToken ?? null}
-                  onLoadError={handleAuthError}
-                />
-              ) : (
-                <Navigate to="/auth" replace />
-              )
-            }
-          />
-          <Route path="/about" element={<AboutPanel />} />
-          {plannedViews
-            .filter((view) => !implementedPaths.has(view.path))
-            .map((view) => (
-              <Route
-                key={view.id}
-                path={view.path}
-                element={
-                  authTokens ? (
-                    <ComingSoon {...view} />
-                  ) : (
-                    <Navigate to="/auth" replace />
-                  )
-                }
-              />
-            ))}
-          <Route path="*" element={<Navigate to="/auth" replace />} />
-        </Routes>
         </main>
       </div>
       <button
