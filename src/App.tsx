@@ -260,14 +260,14 @@ function App() {
               <img src="/favicon.ico" alt="" width="24" height="24" />
               RD Mobile
             </a>
-            <div>
+            <div className="navbar-nav">
               {authTokens ? (
-                <div>
-                  <button className="btn btn-secondary" type="button" onClick={handleSignOut}>
-                    Sign&nbsp;Out
-                  </button>
-                </div>
+                <button className="btn btn-secondary" type="button" onClick={handleSignOut}>
+                  Sign&nbsp;Out
+                </button>
               ) : null}
+            </div>
+            <div className="navbar-nav">
               <select
                 className="form-select"
                 aria-label="Select theme"
