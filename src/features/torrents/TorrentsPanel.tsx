@@ -358,74 +358,64 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
             {errorMessage}
           </div>
         )}
-        <div className="table-responsive">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>
-                  <span className="visually-hidden">Toggle details</span>
-                </th>
-                <th>
-                  <button
-                    className="btn btn-link"
-                    type="button"
-                    onClick={() => handleSort('filename')}
-                  >
-                    Torrent{sortKey === 'filename' ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
-                  </button>
-                </th>
-                <th>
-                  <button
-                    className="btn btn-outline-danger"
-                    type="button"
-                    onClick={handleDeleteSelected}
-                    disabled={isLoading || selectedIds.size === 0}
-                    aria-label="Delete selected torrents"
-                    title="Delete selected"
-                  >
-                    <i className="bi bi-trash"></i>
-                  </button>{' '}
-                  <button
-                    className="btn btn-primary"
-                    type="button"
-                    onClick={fetchTorrents}
-                    disabled={isLoading}
-                    aria-label="Refresh torrents"
-                    title="Refresh"
-                  >
-                    <i className="bi bi-arrow-clockwise"></i>
-                  </button>
-                </th>
-                <th>
-                  <button
-                    className="btn btn-link"
-                    type="button"
-                    onClick={() => handleSort('size')}
-                  >
-                    Size{sortKey === 'size' ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
-                  </button>
-                </th>
-                <th>
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    aria-label="Select all torrents"
-                    checked={allVisibleSelected}
-                    onChange={handleToggleAll}
-                    disabled={sortedTorrents.length === 0}
-                  />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedTorrents.length === 0 && (
-                <tr>
-                  <td colSpan={5}>
-                    No torrents found.
-                  </td>
-                </tr>
-              )}
-              {sortedTorrents.map((item) => {
+        <div>
+          <div className="row">
+            <div className="col-auto">
+              <span className="visually-hidden">Toggle details</span>
+            </div>
+            <div className="col">
+              <button
+                className="btn btn-link"
+                type="button"
+                onClick={() => handleSort('filename')}
+              >
+                Torrent{sortKey === 'filename' ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
+              </button>
+            </div>
+            <div className="col-auto">
+              <button
+                className="btn btn-outline-danger"
+                type="button"
+                onClick={handleDeleteSelected}
+                disabled={isLoading || selectedIds.size === 0}
+                aria-label="Delete selected torrents"
+                title="Delete selected"
+              >
+                <i className="bi bi-trash"></i>
+              </button>{' '}
+              <button
+                className="btn btn-primary"
+                type="button"
+                onClick={fetchTorrents}
+                disabled={isLoading}
+                aria-label="Refresh torrents"
+                title="Refresh"
+              >
+                <i className="bi bi-arrow-clockwise"></i>
+              </button>
+            </div>
+            <div className="col-2">
+              <button
+                className="btn btn-link"
+                type="button"
+                onClick={() => handleSort('size')}
+              >
+                Size{sortKey === 'size' ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
+              </button>
+            </div>
+            <div className="col-auto">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                aria-label="Select all torrents"
+                checked={allVisibleSelected}
+                onChange={handleToggleAll}
+                disabled={sortedTorrents.length === 0}
+              />
+            </div>
+          </div>
+          {sortedTorrents.length === 0 && <div>No torrents found.</div>}
+          {sortedTorrents.map((item) => {
                 const isExpanded = expandedIds.has(item.id)
                 const info = torrentInfoById[item.id]
                 const isInfoLoading = infoLoadingIds.has(item.id)
@@ -459,8 +449,8 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
 
                 return (
                   <Fragment key={item.id}>
-                    <tr>
-                      <td>
+                    <div className="row">
+                      <div className="col-auto">
                         <button
                           className="btn btn-outline-secondary"
                           type="button"
@@ -469,26 +459,11 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                         >
                           {isExpanded ? '-' : '+'}
                         </button>
-                      </td>
-                      <td>
-                        <div>
-                          <strong>{item.filename}</strong>
-                          <div className="progress" aria-label={`Progress for ${item.filename}`}>
-                            <div
-                              className="progress-bar"
-                              role="progressbar"
-                              style={progressStyle}
-                              aria-valuenow={Math.round(normalizedPercent)}
-                              aria-valuemin={0}
-                              aria-valuemax={100}
-                              aria-valuetext={progressLabel}
-                            >
-                              {progressLabel}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
+                      </div>
+                      <div className="col">
+                        <strong>{item.filename}</strong>
+                      </div>
+                      <div className="col-auto">
                         <button
                           className="btn btn-outline-danger"
                           type="button"
@@ -499,9 +474,9 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                         >
                           <i className="bi bi-trash"></i>
                         </button>
-                      </td>
-                      <td>{formatBytes(getTorrentSize(item))}</td>
-                      <td>
+                      </div>
+                      <div className="col-2">{formatBytes(getTorrentSize(item))}</div>
+                      <div className="col-auto">
                         <input
                           className="form-check-input"
                           type="checkbox"
@@ -509,61 +484,71 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                           checked={selectedIds.has(item.id)}
                           onChange={() => handleToggleOne(item.id)}
                         />
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-12">
+                        <div className="progress" aria-label={`Progress for ${item.filename}`}
+                            role="progressbar"
+                            aria-valuenow={Math.round(normalizedPercent)}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                            aria-valuetext={progressLabel}
+                        >
+                          <div
+                            className="progress-bar text-dark"
+                            style={progressStyle}
+                          >
+                            {progressLabel}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     {isExpanded && (
-                      <tr>
-                        <td colSpan={5}>
+                      <div className="row">
+                        <div className="col-12">
                           <div>
                             {isInfoLoading && <div>Loading torrent details...</div>}
                             {!isInfoLoading && files.length === 0 && (
                               <div>No file details available.</div>
                             )}
                             {!isInfoLoading && files.length > 0 && (
-                              <div className="table-responsive">
-                                <table className="table">
-                                  <thead>
-                                    <tr>
-                                      <th>
-                                        <button
-                                          className="btn btn-link"
-                                          type="button"
-                                          onClick={() => handleFileSort(item.id, 'name')}
-                                        >
-                                          File{fileSortState.key === 'name' ? (fileSortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
-                                        </button>
-                                      </th>
-                                      <th>
-                                        <button
-                                          className="btn btn-link"
-                                          type="button"
-                                          onClick={() => handleFileSort(item.id, 'size')}
-                                        >
-                                          Size{fileSortState.key === 'size' ? (fileSortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
-                                        </button>
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {sortedFiles.map((file, index) => (
-                                      <tr key={`${item.id}-file-${file.id ?? index}`}>
-                                        <td>{file.path ?? file.name ?? `File ${index + 1}`}</td>
-                                        <td>{formatBytes(file.bytes ?? 0)}</td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
+                              <div>
+                                <div className="row">
+                                  <div className="col">
+                                    <button
+                                      className="btn btn-link"
+                                      type="button"
+                                      onClick={() => handleFileSort(item.id, 'name')}
+                                    >
+                                      File{fileSortState.key === 'name' ? (fileSortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
+                                    </button>
+                                  </div>
+                                  <div className="col-3 text-end">
+                                    <button
+                                      className="btn btn-link"
+                                      type="button"
+                                      onClick={() => handleFileSort(item.id, 'size')}
+                                    >
+                                      Size{fileSortState.key === 'size' ? (fileSortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
+                                    </button>
+                                  </div>
+                                </div>
+                                {sortedFiles.map((file, index) => (
+                                  <div className="row" key={`${item.id}-file-${file.id ?? index}`}>
+                                    <div className="col">{file.path ?? file.name ?? `File ${index + 1}`}</div>
+                                    <div className="col-3 text-end">{formatBytes(file.bytes ?? 0)}</div>
+                                  </div>
+                                ))}
                               </div>
                             )}
                           </div>
-                        </td>
-                      </tr>
+                        </div>
+                      </div>
                     )}
                   </Fragment>
                 )
               })}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>

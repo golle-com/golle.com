@@ -207,56 +207,46 @@ export default function HostsPanel({ accessToken, onLoadError }: HostsPanelProps
           </div>
         )}
 
-        <div className="table-responsive">
-          <table className="table">
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={4}>Loading..</td>
-                </tr>
-              ) : rows.length === 0 ? (
-                <tr>
-                  <td colSpan={4}>No hosts found.</td>
-                </tr>
-              ) : (
-                rows.map((row) => {
-                  const domainHref = row.domain.startsWith('http://') || row.domain.startsWith('https://')
-                    ? row.domain
-                    : `https://${row.domain}`
+        <div className="container-fluid">
+          {isLoading ? (
+            <div className="row">
+              <div className="col">Loading..</div>
+            </div>
+          ) : rows.length === 0 ? (
+            <div className="row">
+              <div className="col">No hosts found.</div>
+            </div>
+          ) : (
+            rows.map((row) => {
+              const domainHref = row.domain.startsWith('http://') || row.domain.startsWith('https://')
+                ? row.domain
+                : `https://${row.domain}`
 
-                  return (
-                    <tr key={`${row.name}-${row.domain}`}>
-                      <td>
-                        <a href={domainHref}>
-                        {row.iconUrl ? (
-                          <img src={row.iconUrl} alt={row.name} width={20} height={20} />
-                        ) : (
-                          <i className="bi bi-square" aria-hidden="true"></i>
-                        )}
-                        &nbsp;
-                          {row.name}
-                        </a>
-                      </td>
-                      <td>
-                        {row.status === 'up' ? (
-                        <i
-                          className="bi bi-arrow-up text-success"
-                          aria-label="Up"
-                        ></i>
-                         ) : (
-                        <i
-                          className="bi bi-arrow-down text-danger"
-                          aria-label="Down"
-                        ></i>
-                        )}
-                        Last updated {formatDuration(row.lastChecked)} ago
-                      </td>
-                    </tr>
-                  )
-                })
-              )}
-            </tbody>
-          </table>
+              return (
+                <div className="row" key={`${row.name}-${row.domain}`}>
+                  <div className="col-12 col-md-6">
+                    <a href={domainHref}>
+                      {row.iconUrl ? (
+                        <img src={row.iconUrl} alt={row.name} width={20} height={20} />
+                      ) : (
+                        <i className="bi bi-square" aria-hidden="true"></i>
+                      )}
+                      &nbsp;
+                      {row.name}
+                    </a>
+                  </div>
+                  <div className="col-12 col-md-6">
+                    {row.status === 'up' ? (
+                      <i className="bi bi-arrow-up text-success" aria-label="Up"></i>
+                    ) : (
+                      <i className="bi bi-arrow-down text-danger" aria-label="Down"></i>
+                    )}
+                    Last updated {formatDuration(row.lastChecked)} ago
+                  </div>
+                </div>
+              )
+            })
+          )}
         </div>
       </div>
     </div>
