@@ -218,7 +218,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
       setSelectedIds(new Set())
       lastTokenRef.current = null
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken])
 
   const filteredTorrents = useMemo(() => {

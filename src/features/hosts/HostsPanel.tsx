@@ -222,7 +222,7 @@ export default function HostsPanel({ accessToken, onLoadError }: HostsPanelProps
                   return (
                     <tr key={`${row.name}-${row.domain}`}>
                       <td>
-                        <a href={domainHref} target="_blank">
+                        <a href={domainHref}>
                         {row.iconUrl ? (
                           <img src={row.iconUrl} alt={row.name} width={20} height={20} />
                         ) : (

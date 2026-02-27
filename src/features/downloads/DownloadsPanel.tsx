@@ -96,7 +96,6 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
       setSelectedIds(new Set())
       lastTokenRef.current = null
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken])
 
   const filteredDownloads = useMemo(() => {
