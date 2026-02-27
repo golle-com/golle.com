@@ -4,7 +4,7 @@ import { deleteDownload, getDownloads, type DownloadItem, type RdError } from '.
 
 type DownloadsPanelProps = {
   accessToken: string | null
-  onLoadError?: (message: string) => void
+  onLoadError?: (message: string, error?: RdError) => void
 }
 
 export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPanelProps) {
@@ -33,7 +33,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
       const rdError = error as RdError
       const message = rdError.error || 'Failed to load downloads.'
       setErrorMessage(message)
-      onLoadError?.(message)
+      onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
     }
@@ -57,7 +57,9 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
       await fetchDownloads()
     } catch (error) {
       const rdError = error as RdError
-      setErrorMessage(rdError.error || 'Failed to delete download.')
+      const message = rdError.error || 'Failed to delete download.'
+      setErrorMessage(message)
+      onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
     }
@@ -79,7 +81,9 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
       await fetchDownloads()
     } catch (error) {
       const rdError = error as RdError
-      setErrorMessage(rdError.error || 'Failed to delete selected downloads.')
+      const message = rdError.error || 'Failed to delete selected downloads.'
+      setErrorMessage(message)
+      onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
     }

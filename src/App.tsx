@@ -6,6 +6,7 @@ import TokenPaste from './features/auth/TokenPaste'
 import DownloadsPanel from './features/downloads/DownloadsPanel'
 import TorrentsPanel from './features/torrents/TorrentsPanel'
 import AccountPanel from './features/account/AccountPanel'
+import type { RdError } from './lib/realDebrid'
 import { clearAuthTokens, loadAuthTokens, type AuthTokens } from './lib/storage'
 
 type ThemeOption = {
@@ -27,12 +28,12 @@ const THEME_STORAGE_KEY = 'rd_theme'
 const themeOptions: ThemeOption[] = [
   {
     id: 'light',
-    label: 'Light (Bootstrap)',
+    label: 'Light',
     href: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css',
   },
   {
     id: 'dark',
-    label: 'Dark (Darkly)',
+    label: 'Dark',
     href: 'https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/darkly/bootstrap.min.css',
   },
   {
@@ -139,6 +140,10 @@ const navViews = plannedViews.filter((view) => view.id !== 'streaming')
 const implementedPaths = new Set(['/auth', '/downloads', '/torrents', '/account'])
 const AUTH_PENDING_TOAST_ID = 'auth-pending'
 
+function isBadTokenError(error?: RdError) {
+  return error?.error === 'bad_token' && error.error_code === 8
+}
+
 function ComingSoon({ label, apiNamespace, description }: PlannedView) {
   return (
     <div className="card shadow-sm">
@@ -208,8 +213,15 @@ function App() {
     void navigate('/downloads')
   }
 
-  const handleAuthError = (message: string) => {
+  const handleAuthError = (message: string, error?: RdError) => {
     toast.dismiss(AUTH_PENDING_TOAST_ID)
+    if (isBadTokenError(error)) {
+      clearAuthTokens()
+      setAuthTokens(null)
+      void navigate('/auth')
+      toast.error('Session expired. Please sign in again.')
+      return
+    }
     toast.error(message)
   }
 
