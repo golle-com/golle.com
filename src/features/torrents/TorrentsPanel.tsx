@@ -13,7 +13,7 @@ import { getProgressCategory, getProgressColor, getProgressFillPercent } from '.
 
 type TorrentsPanelProps = {
   accessToken: string | null
-  onLoadError?: (message: string) => void
+  onLoadError?: (message: string, error?: RdError) => void
   onInfo?: (message: string) => void
 }
 
@@ -88,7 +88,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
       const rdError = error as RdError
       const message = rdError.error || 'Failed to load torrents.'
       setErrorMessage(message)
-      onLoadError?.(message)
+      onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
     }
@@ -115,7 +115,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
       const rdError = error as RdError
       const message = rdError.error || 'Failed to delete torrent.'
       setErrorMessage(message)
-      onLoadError?.(message)
+      onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
     }
@@ -140,7 +140,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
       const rdError = error as RdError
       const message = rdError.error || 'Failed to delete selected torrents.'
       setErrorMessage(message)
-      onLoadError?.(message)
+      onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
     }
@@ -167,7 +167,9 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
       await fetchTorrents()
     } catch (error) {
       const rdError = error as RdError
-      setErrorMessage(rdError.error || 'Failed to add torrent magnet.')
+      const message = rdError.error || 'Failed to add torrent magnet.'
+      setErrorMessage(message)
+      onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
     }
@@ -197,7 +199,9 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
       }))
     } catch (error) {
       const rdError = error as RdError
-      setErrorMessage(rdError.error || 'Failed to load torrent details.')
+      const message = rdError.error || 'Failed to load torrent details.'
+      setErrorMessage(message)
+      onLoadError?.(message, rdError)
     } finally {
       setInfoLoadingIds((current) => {
         const next = new Set(current)

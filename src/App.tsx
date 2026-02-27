@@ -6,8 +6,10 @@ import TokenPaste from './features/auth/TokenPaste'
 import DownloadsPanel from './features/downloads/DownloadsPanel'
 import TorrentsPanel from './features/torrents/TorrentsPanel'
 import AccountPanel from './features/account/AccountPanel'
+import AboutPanel from './features/about/AboutPanel'
 import UnrestrictPanel from './features/unrestrict/UnrestrictPanel'
 import HostsPanel from './features/hosts/HostsPanel'
+import type { RdError } from './lib/realDebrid'
 import { clearAuthTokens, loadAuthTokens, type AuthTokens } from './lib/storage'
 
 type ThemeOption = {
@@ -29,12 +31,12 @@ const THEME_STORAGE_KEY = 'rd_theme'
 const themeOptions: ThemeOption[] = [
   {
     id: 'light',
-    label: 'Light (Bootstrap)',
+    label: 'Light',
     href: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css',
   },
   {
     id: 'dark',
-    label: 'Dark (Darkly)',
+    label: 'Dark',
     href: 'https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/darkly/bootstrap.min.css',
   },
   {
@@ -134,6 +136,10 @@ const navViews = plannedViews.filter((view) => view.id !== 'streaming')
 const implementedPaths = new Set(['/auth', '/downloads', '/torrents', '/unrestrict', '/account', '/hosts'])
 const AUTH_PENDING_TOAST_ID = 'auth-pending'
 
+function isBadTokenError(error?: RdError) {
+  return error?.error === 'bad_token'
+}
+
 function ComingSoon({ label, apiNamespace, description }: PlannedView) {
   return (
     <div className="card">
@@ -203,8 +209,15 @@ function App() {
     void navigate('/downloads')
   }
 
-  const handleAuthError = (message: string) => {
+  const handleAuthError = (message: string, error?: RdError) => {
     toast.dismiss(AUTH_PENDING_TOAST_ID)
+    if (isBadTokenError(error)) {
+      clearAuthTokens()
+      setAuthTokens(null)
+      void navigate('/auth')
+      toast.error('Session expired. Please sign in again.')
+      return
+    }
     toast.error(message)
   }
 
@@ -280,60 +293,74 @@ function App() {
           </div>
         </nav>
 
-        {authTokens && (
-          <nav className="navbar navbar-expand-md bg-light">
-            <div className="container-fluid">
-              <button
-                className="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#pageNav"
-                aria-controls="pageNav"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-              >
-                <span className="navbar-toggler-icon"></span>
-              </button>
-              <div className="collapse navbar-collapse" id="pageNav">
-                <div className="navbar-nav">
-                  {navViews.map((view) => (
-                    <NavLink
-                      key={view.id}
-                      to={view.path}
-                      end
-                      onClick={handleNavClick}
-                      className={({ isActive }) =>
-                        `nav-link${isActive ? ' active' : ''}`
-                      }
-                    >
-                      {view.label}
-                    </NavLink>
-                  ))}
-                </div>
+        <nav className="navbar navbar-expand-md bg-light">
+          <div className="container-fluid">
+            <button
+              className="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#pageNav"
+              aria-controls="pageNav"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span className="navbar-toggler-icon"></span>
+            </button>
+            <div className="collapse navbar-collapse" id="pageNav">
+              <div className="navbar-na">
+                {authTokens
+                  ? navViews.map((view) => (
+                      <NavLink
+                        key={view.id}
+                        to={view.path}
+                        end
+                        onClick={handleNavClick}
+                        className={({ isActive }) =>
+                          `nav-link${isActive ? ' active' : ''}`
+                        }
+                      >
+                        {view.label}
+                      </NavLink>
+                    ))
+                  : null}
+                <NavLink
+                  to="/about"
+                  end
+                  onClick={handleNavClick}
+                  className={({ isActive }) =>
+                    `nav-link${isActive ? ' active' : ''}`
+                  }
+                >
+                  About
+                </NavLink>
               </div>
             </div>
-          </nav>
-        )}
+          </div>
+        </nav>
 
         <main className="container">
         <Routes>
           <Route
             path="/auth"
             element={
-              <div>
-                <TokenPaste
-                  onTokensSaved={setAuthTokens}
-                  onAuthSuccess={handleAuthSuccess}
-                  onAuthError={handleAuthError}
-                />
-                <DeviceFlow
-                  onTokensSaved={setAuthTokens}
-                  onAuthSuccess={handleAuthSuccess}
-                  onAuthError={handleAuthError}
-                  onInfo={handleInfo}
-                  onPendingInfo={handlePendingInfo}
-                />
-              </div>
+              authTokens ? (
+                <Navigate to="/downloads" replace />
+              ) : (
+                <div>
+                  <TokenPaste
+                    onTokensSaved={setAuthTokens}
+                    onAuthSuccess={handleAuthSuccess}
+                    onAuthError={handleAuthError}
+                  />
+                  <DeviceFlow
+                    onTokensSaved={setAuthTokens}
+                    onAuthSuccess={handleAuthSuccess}
+                    onAuthError={handleAuthError}
+                    onInfo={handleInfo}
+                    onPendingInfo={handlePendingInfo}
+                  />
+                </div>
+              )
             }
           />
           <Route
@@ -403,6 +430,7 @@ function App() {
               )
             }
           />
+          <Route path="/about" element={<AboutPanel />} />
           {plannedViews
             .filter((view) => !implementedPaths.has(view.path))
             .map((view) => (

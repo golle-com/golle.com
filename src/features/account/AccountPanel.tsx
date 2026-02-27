@@ -3,7 +3,8 @@ import { getUserInfo, type RdError, type UserInfo } from '../../lib/realDebrid'
 
 type AccountPanelProps = {
   accessToken: string | null
-  onLoadError?: (message: string) => void
+  onLoadError?: (message: string, error?: RdError) => void
+  onLoadWarning?: (message: string) => void
 }
 
 export default function AccountPanel({ accessToken, onLoadError }: AccountPanelProps) {
@@ -27,7 +28,7 @@ export default function AccountPanel({ accessToken, onLoadError }: AccountPanelP
       const rdError = error as RdError
       const message = rdError.error || 'Failed to load account information.'
       setErrorMessage(message)
-      onLoadError?.(message)
+      onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
     }
