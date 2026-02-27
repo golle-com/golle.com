@@ -30,7 +30,13 @@ files:
   tests_dir: tests
 
 notes:
-  - Use only Bootstrap classes in markup.
+  - Use only Bootstrap classes and do not use classes that describe style.
+  - Prefer Bootstrap named semantic/contextual classes and component classes (for example: bg-primary, bg-light, btn-primary, alert-warning).
+  - Never use Bootstrap utility classes that are direct style instructions for layout or spacing (for example: gap-*, m-*, p-*, d-flex, justify-content-*, align-items-*, w-*, h-*).
+  - Never use auto-margin or directional spacing shorthand utilities (for example: ms-auto, me-auto, mt-*, mb-*, mx-*, my-*).
+  - Avoid low-level visual tuning utility classes where a semantic component or contextual class exists.
+  - If a class name reads like a style instruction (for example: align-items-center), do not use it.
+  - Build layout with Bootstrap structural components/patterns (for example: container, row, col, navbar, input-group) instead of utility-class styling.
   - Prefer fetch with JSON parsing and robust error handling.
   - Keep tokens in browser storage only.
   - Avoid non-ASCII unless already present.

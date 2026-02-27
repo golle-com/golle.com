@@ -35,7 +35,7 @@ function copyWithExecCommand(text: string) {
   textArea.select()
   textArea.setSelectionRange(0, textArea.value.length)
 
-  let wasCopied = false
+  let wasCopied: boolean
   try {
     wasCopied = document.execCommand('copy')
   } catch {
@@ -104,7 +104,8 @@ export default function DeviceFlow({
           onInfo('Device code copied to clipboard.')
           return true
         }
-      } catch {
+      } catch (error) {
+        setErrorMessage(String(error));
       }
 
       const copied = copyWithExecCommand(code)
@@ -288,14 +289,14 @@ export default function DeviceFlow({
   }, [attemptTokenFetch, deviceInfo, isPolling, onAuthError, resetDeviceFlowState])
 
   return (
-    <div className="card shadow-sm">
-      <div className="card-header bg-body">
-        <h5 className="mb-0">Create Device Token</h5>
+    <div className="card">
+      <div className="card-header">
+        <h5>Create Device Token</h5>
       </div>
       <div className="card-body">
-        <div className="row g-3">
+        <div className="row">
           <div className="col-12">
-            <div className="d-grid gap-2 d-md-flex">
+            <div>
               <button
                 className="btn btn-primary"
                 type="button"
@@ -310,7 +311,7 @@ export default function DeviceFlow({
                 </button>
               )}
               {deviceInfo && !isLoading && (
-                <div className="d-flex align-items-center gap-2">
+                <div>
                   <a
                     className="btn btn-success"
                     href={deviceInfo.verification_url}
@@ -326,7 +327,7 @@ export default function DeviceFlow({
           <div className="col-12">
             <div className="card">
               <div className="card-body">
-                <div className="row g-2">
+                <div className="row">
                   <div className="col-12 col-md-6">
                     <label className="form-label">Enter This Code on RD Device Page</label>
                     <input className="form-control" type="text" value={deviceInfo?.user_code ?? ''} readOnly />

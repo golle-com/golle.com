@@ -96,11 +96,8 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
       lastTokenRef.current = accessToken
       void fetchDownloads()
     } else if (!accessToken) {
-      setDownloads([])
-      setSelectedIds(new Set())
       lastTokenRef.current = null
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken])
 
   const filteredDownloads = useMemo(() => {
@@ -160,12 +157,12 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
   }
 
   return (
-    <div className="card shadow-sm">
-      <div className="card-header bg-body d-flex flex-wrap gap-2 justify-content-between align-items-center">
-        <h5 className="mb-0">Downloads</h5>
-        <div className="d-flex flex-wrap gap-2">
+    <div className="card">
+      <div className="card-header">
+        <h5>Downloads</h5>
+        <div>
           <button
-            className="btn btn-outline-danger btn-sm"
+            className="btn btn-outline-danger"
             type="button"
             onClick={handleDeleteSelected}
             disabled={isLoading || selectedIds.size === 0}
@@ -173,13 +170,13 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
             <i className="bi bi-trash"></i>
             <span className="visually-hidden">Delete selected</span>
           </button>
-          <button className="btn btn-primary btn-sm" type="button" onClick={fetchDownloads} disabled={isLoading}>
+          <button className="btn btn-primary" type="button" onClick={fetchDownloads} disabled={isLoading}>
             Refresh
           </button>
         </div>
       </div>
       <div className="card-body">
-        <div className="mb-3">
+        <div>
           <input
             id="downloadsFilter"
             className="form-control"
@@ -194,35 +191,35 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
             {errorMessage}
           </div>
         )}
-        <div className="table-responsive dense-table-wrap">
-          <table className="table table-sm align-middle small dense-table">
+        <div className="table-responsive">
+          <table className="table">
             <thead>
               <tr>
                 <th>
                   <button
-                    className="btn btn-link p-0 text-decoration-none"
+                    className="btn btn-link"
                     type="button"
                     onClick={() => handleSort('filename')}
                   >
                     File{sortKey === 'filename' ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
                   </button>
                 </th>
-                <th className="text-nowrap text-center">
+                <th>
                   <span className="visually-hidden">Delete</span>
                 </th>
-                <th className="text-nowrap text-end">
+                <th>
                   <button
-                    className="btn btn-link p-0 text-decoration-none"
+                    className="btn btn-link"
                     type="button"
                     onClick={() => handleSort('filesize')}
                   >
                     Size{sortKey === 'filesize' ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
                   </button>
                 </th>
-                <th className="text-nowrap text-end">
+                <th>
                   <span className="visually-hidden">Download</span>
                 </th>
-                <th className="text-nowrap text-end">
+                <th>
                   <input
                     className="form-check-input"
                     type="checkbox"
@@ -237,11 +234,11 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="text-body-secondary">Loading..</td>
+                  <td colSpan={5}>Loading..</td>
                 </tr>
               ) : sortedDownloads.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="text-body-secondary">No downloads found.</td>
+                  <td colSpan={5}>No downloads found.</td>
                 </tr>
               )}
               {sortedDownloads.map((item) => {
@@ -250,7 +247,6 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                   <tr key={item.id}>
                     <td>
                       <a
-                        className="text-reset text-decoration-none"
                         href={streamingUrl}
                         rel="noreferrer"
                         aria-label={`Stream ${item.filename}`}
@@ -259,9 +255,9 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                         {item.filename}
                       </a>
                     </td>
-                    <td className="text-center">
+                    <td>
                       <button
-                        className="btn btn-outline-danger btn-sm px-2 py-1"
+                        className="btn btn-outline-danger"
                         type="button"
                         onClick={() => handleDelete(item.id)}
                         disabled={isLoading}
@@ -271,11 +267,11 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                         <i className="bi bi-trash"></i>
                       </button>
                     </td>
-                    <td className="text-nowrap text-end">{formatBytes(item.filesize)}</td>
-                    <td className="text-nowrap text-end">
+                    <td>{formatBytes(item.filesize)}</td>
+                    <td>
                       {item.download ? (
                         <a
-                          className="btn btn-outline-secondary btn-sm px-2 py-1"
+                          className="btn btn-outline-secondary"
                           href={item.download}
                           target="_blank"
                           rel="noreferrer"
@@ -286,7 +282,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                         </a>
                       ) : (
                         <button
-                          className="btn btn-outline-secondary btn-sm px-2 py-1"
+                          className="btn btn-outline-secondary"
                           type="button"
                           disabled
                           aria-label="No download link"
@@ -295,7 +291,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                         </button>
                       )}
                     </td>
-                    <td className="text-end">
+                    <td>
                       <input
                         className="form-check-input"
                         type="checkbox"

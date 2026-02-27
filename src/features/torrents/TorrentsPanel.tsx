@@ -218,11 +218,8 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
       lastTokenRef.current = accessToken
       void fetchTorrents()
     } else if (!accessToken) {
-      setTorrents([])
-      setSelectedIds(new Set())
       lastTokenRef.current = null
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken])
 
   const filteredTorrents = useMemo(() => {
@@ -316,12 +313,12 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
   }
 
   return (
-    <div className="card shadow-sm">
-      <div className="card-header bg-body d-flex flex-wrap gap-2 justify-content-between align-items-center">
-        <h5 className="mb-0">Torrents</h5>
-        <div className="d-flex flex-wrap gap-2">
+    <div className="card">
+      <div className="card-header">
+        <h5>Torrents</h5>
+        <div>
           <button
-            className="btn btn-outline-danger btn-sm"
+            className="btn btn-outline-danger"
             type="button"
             onClick={handleDeleteSelected}
             disabled={isLoading || selectedIds.size === 0}
@@ -329,13 +326,13 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
             <i className="bi bi-trash"></i>
             <span className="visually-hidden">Delete selected</span>
           </button>
-          <button className="btn btn-primary btn-sm" type="button" onClick={fetchTorrents} disabled={isLoading}>
+          <button className="btn btn-primary" type="button" onClick={fetchTorrents} disabled={isLoading}>
             Refresh
           </button>
         </div>
       </div>
       <div className="card-body">
-        <form className="mb-3" onSubmit={handleAddMagnet}>
+        <form onSubmit={handleAddMagnet}>
           <label className="form-label" htmlFor="magnetLink">
             Add magnet link or Info hash
           </label>
@@ -356,7 +353,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
           </div>
           <div className="form-text">Limits: 2000GB torrent size, 72 hours torrent download duration.</div>
         </form>
-        <div className="mb-3">
+        <div>
           <input
             id="torrentsFilter"
             className="form-control"
@@ -371,35 +368,35 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
             {errorMessage}
           </div>
         )}
-        <div className="table-responsive dense-table-wrap">
-          <table className="table table-sm align-middle small dense-table">
+        <div className="table-responsive">
+          <table className="table">
             <thead>
               <tr>
-                <th className="text-center">
+                <th>
                   <span className="visually-hidden">Toggle details</span>
                 </th>
                 <th>
                   <button
-                    className="btn btn-link p-0 text-decoration-none"
+                    className="btn btn-link"
                     type="button"
                     onClick={() => handleSort('filename')}
                   >
                     Torrent{sortKey === 'filename' ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
                   </button>
                 </th>
-                <th className="text-nowrap text-center">
+                <th>
                   <span className="visually-hidden">Delete</span>
                 </th>
-                <th className="text-nowrap text-end">
+                <th>
                   <button
-                    className="btn btn-link p-0 text-decoration-none"
+                    className="btn btn-link"
                     type="button"
                     onClick={() => handleSort('size')}
                   >
                     Size{sortKey === 'size' ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
                   </button>
                 </th>
-                <th className="text-nowrap text-end">
+                <th>
                   <input
                     className="form-check-input"
                     type="checkbox"
@@ -414,7 +411,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
             <tbody>
               {sortedTorrents.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="text-body-secondary">
+                  <td colSpan={5}>
                     No torrents found.
                   </td>
                 </tr>
@@ -456,7 +453,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                     <tr>
                       <td>
                         <button
-                          className="btn btn-outline-secondary btn-sm px-2 py-0"
+                          className="btn btn-outline-secondary"
                           type="button"
                           aria-label={isExpanded ? `Collapse ${item.filename}` : `Expand ${item.filename}`}
                           onClick={() => handleToggleExpand(item.id)}
@@ -465,11 +462,11 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                         </button>
                       </td>
                       <td>
-                        <div className="d-flex flex-column gap-1">
-                          <span className="fw-semibold">{item.filename}</span>
+                        <div>
+                          <strong>{item.filename}</strong>
                           <div className="progress" aria-label={`Progress for ${item.filename}`}>
                             <div
-                              className="progress-bar text-dark"
+                              className="progress-bar"
                               role="progressbar"
                               style={progressStyle}
                               aria-valuenow={Math.round(normalizedPercent)}
@@ -482,9 +479,9 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                           </div>
                         </div>
                       </td>
-                      <td className="text-center">
+                      <td>
                         <button
-                          className="btn btn-outline-danger btn-sm px-2 py-1"
+                          className="btn btn-outline-danger"
                           type="button"
                           onClick={() => handleDelete(item.id)}
                           disabled={isLoading}
@@ -494,8 +491,8 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                           <i className="bi bi-trash"></i>
                         </button>
                       </td>
-                      <td className="text-nowrap text-end">{formatBytes(getTorrentSize(item))}</td>
-                      <td className="text-end">
+                      <td>{formatBytes(getTorrentSize(item))}</td>
+                      <td>
                         <input
                           className="form-check-input"
                           type="checkbox"
@@ -508,28 +505,28 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                     {isExpanded && (
                       <tr>
                         <td colSpan={5}>
-                          <div className="border rounded p-2 bg-body-tertiary">
-                            {isInfoLoading && <div className="text-body-secondary">Loading torrent details...</div>}
+                          <div>
+                            {isInfoLoading && <div>Loading torrent details...</div>}
                             {!isInfoLoading && files.length === 0 && (
-                              <div className="text-body-secondary">No file details available.</div>
+                              <div>No file details available.</div>
                             )}
                             {!isInfoLoading && files.length > 0 && (
                               <div className="table-responsive">
-                                <table className="table table-sm mb-0 small dense-table">
+                                <table className="table">
                                   <thead>
                                     <tr>
                                       <th>
                                         <button
-                                          className="btn btn-link p-0 text-decoration-none"
+                                          className="btn btn-link"
                                           type="button"
                                           onClick={() => handleFileSort(item.id, 'name')}
                                         >
                                           File{fileSortState.key === 'name' ? (fileSortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
                                         </button>
                                       </th>
-                                      <th className="text-nowrap text-end">
+                                      <th>
                                         <button
-                                          className="btn btn-link p-0 text-decoration-none"
+                                          className="btn btn-link"
                                           type="button"
                                           onClick={() => handleFileSort(item.id, 'size')}
                                         >
@@ -542,7 +539,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                                     {sortedFiles.map((file, index) => (
                                       <tr key={`${item.id}-file-${file.id ?? index}`}>
                                         <td>{file.path ?? file.name ?? `File ${index + 1}`}</td>
-                                        <td className="text-nowrap text-end">{formatBytes(file.bytes ?? 0)}</td>
+                                        <td>{formatBytes(file.bytes ?? 0)}</td>
                                       </tr>
                                     ))}
                                   </tbody>
