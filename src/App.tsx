@@ -141,7 +141,7 @@ const implementedPaths = new Set(['/auth', '/downloads', '/torrents', '/account'
 const AUTH_PENDING_TOAST_ID = 'auth-pending'
 
 function isBadTokenError(error?: RdError) {
-  return error?.error === 'bad_token' && error.error_code === 8
+  return error?.error === 'bad_token'
 }
 
 function ComingSoon({ label, apiNamespace, description }: PlannedView) {
