@@ -261,25 +261,25 @@ function App() {
               RD Mobile
             </a>
             <div className="navbar-nav">
-              {authTokens ? (
-                <button className="btn btn-secondary" type="button" onClick={handleSignOut}>
-                  Sign&nbsp;Out
-                </button>
-              ) : null}
-            </div>
-            <div className="navbar-nav">
-              <select
-                className="form-select"
-                aria-label="Select theme"
-                value={activeTheme.id}
-                onChange={(event) => setSelectedThemeId(event.target.value)}
-              >
-                {themeOptions.map((theme) => (
-                  <option key={theme.id} value={theme.id}>
-                    {theme.label}
-                  </option>
-                ))}
-              </select>
+              <div className="btn-group" role="group" aria-label="Theme and sign out">
+                <select
+                  className="form-select"
+                  aria-label="Select theme"
+                  value={activeTheme.id}
+                  onChange={(event) => setSelectedThemeId(event.target.value)}
+                >
+                  {themeOptions.map((theme) => (
+                    <option key={theme.id} value={theme.id}>
+                      {theme.label}
+                    </option>
+                  ))}
+                </select>
+                {authTokens ? (
+                  <button className="btn btn-secondary" type="button" onClick={handleSignOut}>
+                    Sign&nbsp;Out
+                  </button>
+                ) : null}
+              </div>
             </div>
           </div>
         </nav>

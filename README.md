@@ -1,94 +1,119 @@
-# Real-Debrid Mobile SPA
+# Real-Debrid Mobile (golle.com)
 
-A browser-only SPA for Real-Debrid focused on a clean mobile experience.
+[![Build](https://github.com/golle-com/golle.com/actions/workflows/build.yml/badge.svg)](https://github.com/golle-com/golle.com/actions/workflows/build.yml)
+[![Lint](https://github.com/golle-com/golle.com/actions/workflows/lint.yml/badge.svg)](https://github.com/golle-com/golle.com/actions/workflows/lint.yml)
 
-## Goals
-- Use Real-Debrid API directly from the browser (no backend).
-- Support device/opensource OAuth flow and token paste.
-- Bootstrap via CDN only. No custom CSS classes beyond Bootstrap.
-- Theme picker (start with light/dark), user-selectable.
-- Test-driven design with unit and system tests.
+Mobile-first React SPA for Real-Debrid account management and link workflows, with a Cloudflare Worker proxy for CORS-safe API access.
 
-## Status
-- CORS test page is in `tests/cors.html`.
-- App scaffolding is complete.
+## What this project includes
 
-## Planned Pages
-Based on the Real-Debrid API namespaces (https://api.real-debrid.com):
-- Downloads: Review completed downloads and open or delete links.
-- Torrents: Add, inspect, and manage active or completed torrents.
-- Unrestrict: Check links and unrestrict files, folders, or containers.
-- Traffic: Inspect usage limits and traffic details per hoster.
-- Streaming: Fetch transcodes and media info for streamable files.
-- Hosts: See supported hosters, availability status, and regex metadata.
-- Account: View or update user preferences and account assets.
+- Device flow authentication and token paste login
+- Downloads, Torrents, Unrestrict, Hosts, and Account panels
+- Theme switching using Bootstrap + Bootswatch CDN themes
+- Local token storage and authenticated API calls
+- Cloudflare Worker proxy for `/rest/*` and `/oauth/*`
 
-## Tech
-- Vite + React + TypeScript
-- Bootstrap via CDN (theme swapping)
-- Vitest + React Testing Library (unit)
-- Playwright (system)
+## Tech stack
 
-## Development
-- Install: `npm install`
-- Dev server: `npm run dev`
-- Unit tests: `npm run test`
-- System tests: `npm run test:e2e`
-- Build production assets: `npm run build`
-- Deploy SPA to Cloudflare Pages: `npx wrangler pages deploy dist --project-name rd-static`
-- Legacy/optional S3 deploy: `npm run deploy:s3`
+- React 19 + TypeScript + Vite
+- React Router
+- ESLint
+- Cloudflare Workers + Wrangler
 
-## Cloudflare Worker Proxy (for CORS)
+## CI
 
-When deployed outside localhost, Real-Debrid CORS can fail. This project now includes a Worker-based proxy.
+GitHub Actions runs two checks on push and pull requests:
 
-### 1) Deploy the Worker
-- Login once: `npm run proxy:login`
-- Check account status: `npm run proxy:whoami`
-- Deploy: `npm run proxy:deploy`
+- `Lint` → `npm run lint`
+- `Build` → `npm run build`
 
-This uses [cloudflare/wrangler.toml](cloudflare/wrangler.toml). Default worker name is `rd-proxy`.
+Workflows:
 
-### 2) Frontend proxy configuration
-- The frontend uses the Golle proxy URL directly in code:
-	- `https://rd-proxy.golle.workers.dev`
+- `.github/workflows/lint.yml`
+- `.github/workflows/build.yml`
 
-### 3) Restrict browser origins (recommended)
-- In `cloudflare/wrangler.toml`, set `ALLOWED_ORIGINS` to a comma-separated list:
-	- `ALLOWED_ORIGINS = "https://your-app.com,https://www.your-app.com"`
-- Re-deploy after changes: `npm run proxy:deploy`
+## Local development
+
+### Prerequisites
+
+- Node.js 22+
+- npm
+
+### Install
+
+```bash
+npm ci
+```
+
+### Run app
+
+```bash
+npm run dev
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+### Build
+
+```bash
+npm run build
+```
+
+### Preview production build
+
+```bash
+npm run preview
+```
+
+## Cloudflare Worker proxy
+
+Worker source lives in `cloudflare/src/index.ts`.
 
 ### Useful commands
-- Local proxy dev server: `npm run proxy:dev`
-- Live logs: `npm run proxy:tail`
-- Proxy health URL: `https://rd-proxy.golle.workers.dev/time`
-- Curl health check: `npm run proxy:test:time`
-- Curl upstream check: `npm run proxy:test:upstream`
 
-## Cloudflare Pages Hosting + DNS (golle.com)
+```bash
+npm run login
+npm run whoami
+npm run devw
+npm run deploy:worker
+npm run tail
+```
 
-Cloudflare can host both DNS and SSL for free (standard/free plan), and Pages can host this SPA at the apex domain (`https://golle.com`).
+### Health checks
 
-### Commands used
-- Confirm Cloudflare auth: `npx wrangler whoami`
-- Build site: `npm run build`
-- Create Pages project (one-time): `npx wrangler pages project create rd-static --production-branch main`
-- Deploy static assets: `npx wrangler pages deploy dist --project-name rd-static`
-- List Pages projects: `npx wrangler pages project list`
+```bash
+npm run test:time
+npm run test:upstream
+```
 
-### Current live Pages URLs
-- `https://rd-static.pages.dev`
-- `https://master.rd-static.pages.dev`
+### CORS origin allowlist
 
-### Attach apex domain (`golle.com`)
-Wrangler v4 no longer exposes the old `pages domain add` command. Use the Cloudflare dashboard:
-1. `Workers & Pages` → `rd-static` project
-2. `Custom domains` → `Set up a custom domain`
-3. Add `golle.com` (and `www.golle.com` if desired)
-4. If asked, move DNS to Cloudflare nameservers at your registrar
+Set `ALLOWED_ORIGINS` in `cloudflare/wrangler.toml` as a comma-separated list:
 
-Cloudflare will provision SSL automatically once DNS is active.
+```toml
+ALLOWED_ORIGINS = "https://your-app.com,https://www.your-app.com"
+```
 
-## Notes
-- Do not store a client secret in the browser. Use the opensource device flow.
-- If Real-Debrid removes CORS in the future, a local proxy will be needed.
+## Deploy
+
+### Cloudflare Pages preview deploy
+
+```bash
+npm run deploy:preview
+```
+
+### Cloudflare Pages production deploy
+
+```bash
+npm run deploy:prod
+```
+
+## Security notes
+
+- Do not put a Real-Debrid client secret in frontend code.
+- Use device flow / token-based auth only.
+- Limit allowed browser origins in Worker configuration.
