@@ -121,11 +121,11 @@ const plannedViews: PlannedView[] = [
     description: 'Hoster support, availability status, and regex metadata.',
   },
   {
-    id: 'settings',
+    id: 'account',
     label: 'Account',
     path: '/account',
-    apiNamespace: '/settings',
-    description: 'User settings, points conversion, and avatar.',
+    apiNamespace: '/user',
+    description: 'User profile and account details.',
   },
 ]
 
@@ -226,10 +226,6 @@ function App() {
       autoClose: timeoutMs,
       toastId: AUTH_PENDING_TOAST_ID,
     })
-  }
-
-  const handleWarning = (message: string) => {
-    toast.warn(message)
   }
 
   const handleNavClick = () => {
@@ -388,7 +384,6 @@ function App() {
                 <AccountPanel
                   accessToken={authTokens?.accessToken ?? null}
                   onLoadError={handleAuthError}
-                  onLoadWarning={handleWarning}
                 />
               ) : (
                 <Navigate to="/auth" replace />
