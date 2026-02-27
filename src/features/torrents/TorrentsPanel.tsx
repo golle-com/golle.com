@@ -214,8 +214,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
       lastTokenRef.current = accessToken
       void fetchTorrents()
     } else if (!accessToken) {
-      setTorrents([])
-      setSelectedIds(new Set())
       lastTokenRef.current = null
     }
   }, [accessToken])

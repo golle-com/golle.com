@@ -1,4 +1,4 @@
-# Real-Debrid Mobile (golle.com)
+# golle.com - mobile-friendly front-end for Real-Debrid
 
 [![Build](https://github.com/golle-com/golle.com/actions/workflows/build.yml/badge.svg)](https://github.com/golle-com/golle.com/actions/workflows/build.yml)
 [![Lint](https://github.com/golle-com/golle.com/actions/workflows/lint.yml/badge.svg)](https://github.com/golle-com/golle.com/actions/workflows/lint.yml)
@@ -15,7 +15,7 @@ Mobile-first React SPA for Real-Debrid account management and link workflows, wi
 
 ## Tech stack
 
-- React 19 + TypeScript + Vite
+- React + TypeScript + Vite
 - React Router
 - ESLint
 - Cloudflare Workers + Wrangler

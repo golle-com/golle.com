@@ -63,9 +63,6 @@ export default function AccountPanel({ accessToken, onLoadError, onLoadWarning }
       lastTokenRef.current = accessToken
       void fetchData()
     } else if (!accessToken) {
-      setUserInfo(null)
-      setSettings(null)
-      setSettingsUnavailable(false)
       lastTokenRef.current = null
     }
   }, [accessToken, fetchData])

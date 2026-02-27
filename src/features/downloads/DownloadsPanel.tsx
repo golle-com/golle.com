@@ -92,8 +92,6 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
       lastTokenRef.current = accessToken
       void fetchDownloads()
     } else if (!accessToken) {
-      setDownloads([])
-      setSelectedIds(new Set())
       lastTokenRef.current = null
     }
   }, [accessToken])

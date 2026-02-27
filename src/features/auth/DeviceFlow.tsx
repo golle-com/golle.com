@@ -35,7 +35,7 @@ function copyWithExecCommand(text: string) {
   textArea.select()
   textArea.setSelectionRange(0, textArea.value.length)
 
-  let wasCopied = false
+  let wasCopied: boolean
   try {
     wasCopied = document.execCommand('copy')
   } catch {

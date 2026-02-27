@@ -182,7 +182,6 @@ export default function HostsPanel({ accessToken, onLoadError }: HostsPanelProps
       lastTokenRef.current = accessToken
       void fetchHostsData()
     } else if (!accessToken) {
-      setRows([])
       lastTokenRef.current = null
     }
   }, [accessToken, fetchHostsData])
