@@ -45,29 +45,28 @@ export default function AccountPanel({ accessToken, onLoadError }: AccountPanelP
     }
   }, [accessToken, fetchData])
 
-  if (isLoading) {
-    return (
-      <div>
-        <p>Loading...</p>
-      </div>
-    )
-  }
-
-  if (errorMessage) {
-    return (
-      <div role="alert">
-        {errorMessage}
-      </div>
-    )
-  }
-
   return (
-    <section>
-      <header>
-        <h5>Account Information</h5>
-      </header>
-      <div>
-        {userInfo && (
+    <div className="card">
+      <div className="card-header">
+        <div className="row">
+          <div className="col">
+            <h5 className="card-title">Account Information</h5>
+          </div>
+          <div className="col-auto">
+            <button className="btn btn-primary" type="button" onClick={fetchData} disabled={isLoading}>
+              Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+      <div className="card-body">
+        {isLoading && <p>Loading...</p>}
+        {errorMessage && (
+          <div className="alert alert-warning" role="alert">
+            {errorMessage}
+          </div>
+        )}
+        {userInfo && !isLoading && (
           <section>
             <h6>User Info</h6>
             <dl>
@@ -85,6 +84,6 @@ export default function AccountPanel({ accessToken, onLoadError }: AccountPanelP
           </section>
         )}
       </div>
-    </section>
+    </div>
   )
 }

@@ -315,8 +315,21 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
   return (
     <div className="card">
       <div className="card-header">
-        <h5>Torrents</h5>
-        <div>
+        <div className="row">
+          <div className="col">
+            <h5 className="card-title">Torrents</h5>
+          </div>
+          <div className="col-12 col-md-3">
+            <input
+              id="torrentsFilter"
+              className="form-control"
+              type="search"
+              placeholder="Search"
+              value={filterQuery}
+              onChange={(event) => setFilterQuery(event.target.value)}
+            />
+          </div>
+          <div className="col-auto">
           <button
             className="btn btn-outline-danger"
             type="button"
@@ -326,9 +339,12 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
             <i className="bi bi-trash"></i>
             <span className="visually-hidden">Delete selected</span>
           </button>
+          </div>
+          <div className="col-auto">
           <button className="btn btn-primary" type="button" onClick={fetchTorrents} disabled={isLoading}>
             Refresh
           </button>
+          </div>
         </div>
       </div>
       <div className="card-body">
@@ -353,16 +369,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
           </div>
           <div className="form-text">Limits: 2000GB torrent size, 72 hours torrent download duration.</div>
         </form>
-        <div>
-          <input
-            id="torrentsFilter"
-            className="form-control"
-            type="search"
-            placeholder="Search torrents"
-            value={filterQuery}
-            onChange={(event) => setFilterQuery(event.target.value)}
-          />
-        </div>
         {errorMessage && (
           <div className="alert alert-warning" role="alert">
             {errorMessage}

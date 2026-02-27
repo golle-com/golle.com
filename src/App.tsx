@@ -104,7 +104,6 @@ function App() {
 
   return (
     <>
-      <div>
         <nav className="navbar navbar-expand-lg bg-primary">
           <div className="container-fluid">
             <a className="navbar-brand" href="#">
@@ -134,10 +133,9 @@ function App() {
             </div>
           </div>
         </nav>
-
         <SideNavbar authTokens={Boolean(authTokens)} views={navViews} />
-
-        <main className="container-fluid">
+        {/* eslint-disable-next-line local/no-style-utility-classes */}
+        <main className="container-fluid py-1">
           <AppRoutes
             authTokens={authTokens}
             setAuthTokens={setAuthTokens}
@@ -147,7 +145,6 @@ function App() {
             onPendingInfo={handlePendingInfo}
           />
         </main>
-      </div>
       <button
         type="button"
         className="btn btn-primary"

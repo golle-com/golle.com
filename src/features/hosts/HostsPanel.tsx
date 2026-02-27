@@ -187,22 +187,28 @@ export default function HostsPanel({ accessToken, onLoadError }: HostsPanelProps
   }, [accessToken, fetchHostsData])
 
   return (
-    <div>
-      <div>
-        <h5>Hosts</h5>
-        <button type="button" className="btn btn-primary" onClick={fetchHostsData} disabled={isLoading}>
-          Refresh
-        </button>
+    <div className="card">
+      <div className="card-header">
+        <div className="row">
+          <div className="col">
+            <h5 className="card-title">Hosts</h5>
+          </div>
+          <div className="col-auto">
+            <button type="button" className="btn btn-primary" onClick={fetchHostsData} disabled={isLoading}>
+              Refresh
+            </button>
+          </div>
+        </div>
       </div>
-      <div>
+      <div className="card-body">
         {errorMessage && (
-          <div role="alert">
+          <div className="alert alert-warning" role="alert">
             {errorMessage}
           </div>
         )}
 
-        <div>
-          <table>
+        <div className="table-responsive">
+          <table className="table">
             <tbody>
               {isLoading ? (
                 <tr>

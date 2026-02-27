@@ -211,9 +211,6 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                   </button>
                 </th>
                 <th>
-                  <span className="visually-hidden">Delete</span>
-                </th>
-                <th>
                   <button
                     className="btn btn-link"
                     type="button"
@@ -224,6 +221,9 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                 </th>
                 <th>
                   <span className="visually-hidden">Download</span>
+                </th>
+                <th>
+                  <span className="visually-hidden">Delete</span>
                 </th>
                 <th>
                   <input
@@ -258,23 +258,13 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                         aria-label={`Stream ${item.filename}`}
                         title={`Stream ${item.filename}`}
                       >
-                        <i className="bi bi-play-btn me-1" aria-hidden="true"></i>
+                        <i className="bi bi-play-btn" aria-hidden="true"> </i>
                         {item.filename}
                       </a>
                     </td>
                     <td>
-                      <button
-                        className="btn btn-outline-danger"
-                        type="button"
-                        onClick={() => handleDelete(item.id)}
-                        disabled={isLoading}
-                        aria-label={`Delete ${item.filename}`}
-                        title="Delete"
-                      >
-                        <i className="bi bi-trash"></i>
-                      </button>
+                      {formatBytes(item.filesize)}
                     </td>
-                    <td>{formatBytes(item.filesize)}</td>
                     <td>
                       {item.download ? (
                         <a
@@ -297,6 +287,18 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                           <i className="bi bi-download"></i>
                         </button>
                       )}
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-outline-danger"
+                        type="button"
+                        onClick={() => handleDelete(item.id)}
+                        disabled={isLoading}
+                        aria-label={`Delete ${item.filename}`}
+                        title="Delete"
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
                     </td>
                     <td>
                       <input
