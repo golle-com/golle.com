@@ -329,22 +329,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
               onChange={(event) => setFilterQuery(event.target.value)}
             />
           </div>
-          <div className="col-auto">
-          <button
-            className="btn btn-outline-danger"
-            type="button"
-            onClick={handleDeleteSelected}
-            disabled={isLoading || selectedIds.size === 0}
-          >
-            <i className="bi bi-trash"></i>
-            <span className="visually-hidden">Delete selected</span>
-          </button>
-          </div>
-          <div className="col-auto">
-          <button className="btn btn-primary" type="button" onClick={fetchTorrents} disabled={isLoading}>
-            Refresh
-          </button>
-          </div>
         </div>
       </div>
       <div className="card-body">
@@ -391,7 +375,26 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                   </button>
                 </th>
                 <th>
-                  <span className="visually-hidden">Delete</span>
+                  <button
+                    className="btn btn-outline-danger"
+                    type="button"
+                    onClick={handleDeleteSelected}
+                    disabled={isLoading || selectedIds.size === 0}
+                    aria-label="Delete selected torrents"
+                    title="Delete selected"
+                  >
+                    <i className="bi bi-trash"></i>
+                  </button>{' '}
+                  <button
+                    className="btn btn-primary"
+                    type="button"
+                    onClick={fetchTorrents}
+                    disabled={isLoading}
+                    aria-label="Refresh torrents"
+                    title="Refresh"
+                  >
+                    <i className="bi bi-arrow-clockwise"></i>
+                  </button>
                 </th>
                 <th>
                   <button

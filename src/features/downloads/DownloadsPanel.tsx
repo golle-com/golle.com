@@ -173,22 +173,6 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
               onChange={(event) => setFilterQuery(event.target.value)}
             />
           </div>
-          <div className="col-auto">
-            <button
-              className="btn btn-outline-danger"
-              type="button"
-              onClick={handleDeleteSelected}
-              disabled={isLoading || selectedIds.size === 0}
-            >
-              <i className="bi bi-trash"></i>
-              <span className="visually-hidden">Delete selected</span>
-            </button>
-          </div>
-          <div className="col-auto">
-            <button className="btn btn-primary" type="button" onClick={fetchDownloads} disabled={isLoading}>
-              Refresh
-            </button>
-          </div>
         </div>
       </div>
       <div className="card-body">
@@ -220,10 +204,26 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                   </button>
                 </th>
                 <th>
-                  <span className="visually-hidden">Download</span>
-                </th>
-                <th>
-                  <span className="visually-hidden">Delete</span>
+                  <button
+                    className="btn btn-outline-danger"
+                    type="button"
+                    onClick={handleDeleteSelected}
+                    disabled={isLoading || selectedIds.size === 0}
+                    aria-label="Delete selected downloads"
+                    title="Delete selected"
+                  >
+                    <i className="bi bi-trash"></i>
+                  </button>{' '}
+                  <button
+                    className="btn btn-primary"
+                    type="button"
+                    onClick={fetchDownloads}
+                    disabled={isLoading}
+                    aria-label="Refresh downloads"
+                    title="Refresh"
+                  >
+                    <i className="bi bi-arrow-clockwise"></i>
+                  </button>
                 </th>
                 <th>
                   <input
@@ -240,11 +240,11 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={5}>Loading..</td>
+                  <td colSpan={4}>Loading..</td>
                 </tr>
               ) : sortedDownloads.length === 0 && (
                 <tr>
-                  <td colSpan={5}>No downloads found.</td>
+                  <td colSpan={4}>No downloads found.</td>
                 </tr>
               )}
               {sortedDownloads.map((item) => {
@@ -286,9 +286,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                         >
                           <i className="bi bi-download"></i>
                         </button>
-                      )}
-                    </td>
-                    <td>
+                      )}{' '}
                       <button
                         className="btn btn-outline-danger"
                         type="button"

@@ -1,10 +1,10 @@
 function AboutPanel() {
   return (
-    <div className="card shadow-sm">
-      <div className="card-header bg-body">
-        <h5>About</h5>
+    <div className="card">
+      <div className="card-header">
+        <h5 className="card-title">About</h5>
       </div>
-      <div className="card-body flex-column">
+      <div className="card-body">
         <div>
           Source code:{' '}
           <a href="https://github.com/golle-com/golle.com">
