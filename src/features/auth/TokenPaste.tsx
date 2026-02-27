@@ -53,17 +53,21 @@ export default function TokenPaste({ onTokensSaved, onAuthSuccess, onAuthError }
         <div className="row">
           <div className="col-12">
             <label className="form-label">Access Token ( <a target="_blank" href="https://real-debrid.com/apitoken">Get Here</a> )</label>
-            <input
-              className="form-control"
-              type="text"
-              value={accessToken}
-              onChange={(event) => setAccessToken(event.target.value)}
-            />
           </div>
+        </div>
+        <div className="row">
           <div className="col-12">
-            <button className="btn btn-primary" type="button" onClick={handleSave} disabled={isDisabled}>
-              {isLoading ? 'Checking...' : 'Login'}
-            </button>
+            <div className="btn-group" role="group" aria-label="Token actions">
+              <input
+                className="form-control"
+                type="text"
+                value={accessToken}
+                onChange={(event) => setAccessToken(event.target.value)}
+              />
+              <button className="btn btn-primary" type="button" onClick={handleSave} disabled={isDisabled}>
+                {isLoading ? 'Checking...' : 'Login'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

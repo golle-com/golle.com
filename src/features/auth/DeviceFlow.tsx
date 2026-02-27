@@ -305,12 +305,11 @@ export default function DeviceFlow({
               >
                 Request Code
               </button>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-12">
               {deviceInfo && (
-                <button className="btn btn-outline-secondary" type="button" onClick={handleCopyCode}>
-                  Copy Code
-                </button>
-              )}
-              {deviceInfo && !isLoading && (
                 <div>
                   <a
                     className="btn btn-success"
@@ -324,26 +323,29 @@ export default function DeviceFlow({
               )}
             </div>
           </div>
+        </div>
+        {deviceInfo && (
+        <div className="row">
           <div className="col-12">
-            <div className="card">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-12 col-md-6">
-                    <label className="form-label">Enter This Code on RD Device Page</label>
-                    <input className="form-control" type="text" value={deviceInfo?.user_code ?? ''} readOnly />
-                  </div>
-                </div>
-              </div>
+            <label className="form-label">Enter This Code on RD Device Page: </label>
+            <div className="btn-group" role="group">
+              <input className="form-control" type="text" value={deviceInfo?.user_code ?? ''} readOnly />
+              <button className="btn btn-secondary" type="button" onClick={handleCopyCode}>
+                Copy Code
+              </button>
             </div>
           </div>
-          {errorMessage && (
+        </div>
+        )}
+        {errorMessage && (
+          <div className="row">
             <div className="col-12">
               <div className="alert alert-warning" role="alert">
                 {errorMessage}
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   )
