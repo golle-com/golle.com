@@ -159,33 +159,39 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
   return (
     <div className="card">
       <div className="card-header">
-        <h5>Downloads</h5>
-        <div>
-          <button
-            className="btn btn-outline-danger"
-            type="button"
-            onClick={handleDeleteSelected}
-            disabled={isLoading || selectedIds.size === 0}
-          >
-            <i className="bi bi-trash"></i>
-            <span className="visually-hidden">Delete selected</span>
-          </button>
-          <button className="btn btn-primary" type="button" onClick={fetchDownloads} disabled={isLoading}>
-            Refresh
-          </button>
+        <div className="row">
+          <div className="col">
+            <h5 className="card-title">Downloads</h5>
+          </div>
+          <div className="col-12 col-md-3">
+            <input
+              id="downloadsFilter"
+              className="form-control"
+              type="search"
+              placeholder="Search"
+              value={filterQuery}
+              onChange={(event) => setFilterQuery(event.target.value)}
+            />
+          </div>
+          <div className="col-auto">
+            <button
+              className="btn btn-outline-danger"
+              type="button"
+              onClick={handleDeleteSelected}
+              disabled={isLoading || selectedIds.size === 0}
+            >
+              <i className="bi bi-trash"></i>
+              <span className="visually-hidden">Delete selected</span>
+            </button>
+          </div>
+          <div className="col-auto">
+            <button className="btn btn-primary" type="button" onClick={fetchDownloads} disabled={isLoading}>
+              Refresh
+            </button>
+          </div>
         </div>
       </div>
       <div className="card-body">
-        <div>
-          <input
-            id="downloadsFilter"
-            className="form-control"
-            type="search"
-            placeholder="Search downloads"
-            value={filterQuery}
-            onChange={(event) => setFilterQuery(event.target.value)}
-          />
-        </div>
         {errorMessage && (
           <div className="alert alert-warning" role="alert">
             {errorMessage}
@@ -252,6 +258,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                         aria-label={`Stream ${item.filename}`}
                         title={`Stream ${item.filename}`}
                       >
+                        <i className="bi bi-play-btn me-1" aria-hidden="true"></i>
                         {item.filename}
                       </a>
                     </td>

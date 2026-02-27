@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify'
 import SideNavbar from './features/navigation/SideNavbar'
 import { themeOptions } from './features/navigation/themeOptions'
-import AppRoutes, { navViews } from './routes'
+import { navViews } from './routeMetadata'
+import AppRoutes from './routes'
 import type { RdError } from './lib/realDebrid'
 import { clearAuthTokens, loadAuthTokens, type AuthTokens } from './lib/storage'
 
@@ -111,7 +112,7 @@ function App() {
               RD Mobile
             </a>
             <div className="navbar-nav">
-              <div className="btn-group" role="group" aria-label="Theme and sign out">
+              <div className="btn-group" role="group" aria-label="Theme and sign out actions">
                 <select
                   className="form-select"
                   aria-label="Select theme"
@@ -136,7 +137,7 @@ function App() {
 
         <SideNavbar authTokens={Boolean(authTokens)} views={navViews} />
 
-        <main className="container">
+        <main className="container-fluid">
           <AppRoutes
             authTokens={authTokens}
             setAuthTokens={setAuthTokens}

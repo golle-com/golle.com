@@ -25,7 +25,7 @@ function SideNavbar({ authTokens, views }: SideNavbarProps) {
   }
 
   return (
-    <nav className="navbar navbar-expand-md bg-light">
+    <nav className="navbar navbar-expand-md bg-light mb-3">
       <div className="container-fluid">
         <button
           className="navbar-toggler"
