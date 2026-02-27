@@ -344,20 +344,24 @@ function App() {
           <Route
             path="/auth"
             element={
-              <div className="d-flex flex-column gap-3">
-                <TokenPaste
-                  onTokensSaved={setAuthTokens}
-                  onAuthSuccess={handleAuthSuccess}
-                  onAuthError={handleAuthError}
-                />
-                <DeviceFlow
-                  onTokensSaved={setAuthTokens}
-                  onAuthSuccess={handleAuthSuccess}
-                  onAuthError={handleAuthError}
-                  onInfo={handleInfo}
-                  onPendingInfo={handlePendingInfo}
-                />
-              </div>
+              authTokens ? (
+                <Navigate to="/downloads" replace />
+              ) : (
+                <div className="d-flex flex-column gap-3">
+                  <TokenPaste
+                    onTokensSaved={setAuthTokens}
+                    onAuthSuccess={handleAuthSuccess}
+                    onAuthError={handleAuthError}
+                  />
+                  <DeviceFlow
+                    onTokensSaved={setAuthTokens}
+                    onAuthSuccess={handleAuthSuccess}
+                    onAuthError={handleAuthError}
+                    onInfo={handleInfo}
+                    onPendingInfo={handlePendingInfo}
+                  />
+                </div>
+              )
             }
           />
           <Route
