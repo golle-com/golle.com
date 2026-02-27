@@ -6,6 +6,7 @@ import TokenPaste from './features/auth/TokenPaste'
 import DownloadsPanel from './features/downloads/DownloadsPanel'
 import TorrentsPanel from './features/torrents/TorrentsPanel'
 import AccountPanel from './features/account/AccountPanel'
+import AboutPanel from './features/about/AboutPanel'
 import type { RdError } from './lib/realDebrid'
 import { clearAuthTokens, loadAuthTokens, type AuthTokens } from './lib/storage'
 
@@ -304,40 +305,48 @@ function App() {
           </div>
         </nav>
 
-        {authTokens && (
-          <nav className="navbar navbar-expand-md bg-light">
-            <div className="container-fluid">
-              <button
-                className="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#pageNav"
-                aria-controls="pageNav"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-              >
-                <span className="navbar-toggler-icon"></span>
-              </button>
-              <div className="collapse navbar-collapse" id="pageNav">
-                <div className="navbar-nav gap-1 py-2">
-                  {navViews.map((view) => (
-                    <NavLink
-                      key={view.id}
-                      to={view.path}
-                      end
-                      onClick={handleNavClick}
-                      className={({ isActive }) =>
-                        `nav-link small px-2 py-1${isActive ? ' active' : ''}`
-                      }
-                    >
-                      {view.label}
-                    </NavLink>
-                  ))}
-                </div>
+        <nav className="navbar navbar-expand-md bg-light">
+          <div className="container-fluid">
+            <button
+              className="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#pageNav"
+              aria-controls="pageNav"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span className="navbar-toggler-icon"></span>
+            </button>
+            <div className="collapse navbar-collapse" id="pageNav">
+              <div className="navbar-nav gap-1 py-2">
+                {authTokens
+                  ? navViews.map((view) => (
+                      <NavLink
+                        key={view.id}
+                        to={view.path}
+                        end
+                        onClick={handleNavClick}
+                        className={({ isActive }) =>
+                          `nav-link small px-2 py-1${isActive ? ' active' : ''}`
+                        }
+                      >
+                        {view.label}
+                      </NavLink>
+                    ))
+                  : null}
+                <NavLink
+                  to="/about"
+                  end
+                  onClick={handleNavClick}
+                  className={({ isActive }) => `nav-link small px-2 py-1${isActive ? ' active' : ''}`}
+                >
+                  About
+                </NavLink>
               </div>
             </div>
-          </nav>
-        )}
+          </div>
+        </nav>
 
         <main className="container py-2 px-2 px-md-3">
         <Routes>
@@ -405,6 +414,7 @@ function App() {
               )
             }
           />
+          <Route path="/about" element={<AboutPanel />} />
           {plannedViews
             .filter((view) => !implementedPaths.has(view.path))
             .map((view) => (
