@@ -7,7 +7,7 @@ function AboutPanel() {
       <div className="card-body d-flex flex-column gap-2">
         <div>
           Source code:{' '}
-          <a href="https://github.com/golle-com/golle.com" target="_blank" rel="noreferrer">
+          <a href="https://github.com/golle-com/golle.com">
             https://github.com/golle-com/golle.com
           </a>
         </div>
@@ -15,7 +15,7 @@ function AboutPanel() {
         <div>This app is hosted on Cloudflare.</div>
         <div>
           Cloudflare system status:{' '}
-          <a href="https://www.cloudflarestatus.com/" target="_blank" rel="noreferrer">
+          <a href="https://www.cloudflarestatus.com/">
             https://www.cloudflarestatus.com/
           </a>
         </div>
