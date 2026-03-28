@@ -1,10 +1,14 @@
-import {
-  BUILD_DATE,
-  GIT_SHA,
-  GIT_SHA_FULL,
-} from '../../build-info'
+declare const __BUILD_INFO__: {
+  BUILD_DATE: string
+  GIT_SHA: string
+  GIT_SHA_FULL: string
+}
 
 function AboutPanel() {
+  const buildDate = __BUILD_INFO__.BUILD_DATE
+  const gitSha = __BUILD_INFO__.GIT_SHA
+  const gitShaFull = __BUILD_INFO__.GIT_SHA_FULL
+
   return (
     <div className="card">
       <div className="card-header">
@@ -25,14 +29,14 @@ function AboutPanel() {
             https://www.cloudflarestatus.com/
           </a>
         </div>
+
+        <hr />
         <div>
-          <strong>Build date:</strong> {BUILD_DATE}
+          <strong>Build date:</strong> {buildDate}
         </div>
         <div>
-          <strong>Git SHA:</strong> {GIT_SHA}
-        </div>
-        <div>
-          <strong>Git SHA (full):</strong> <a href="https://github.com/golle-com/golle.com/commit/{GIT_SHA_FULL}">{GIT_SHA_FULL}</a>
+          <strong>Git SHA: </strong> 
+            <a href={`https://github.com/golle-com/golle.com/commit/${gitShaFull}`}>{gitSha}</a>
         </div>
       </div>
     </div>

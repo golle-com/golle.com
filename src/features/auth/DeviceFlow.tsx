@@ -126,7 +126,6 @@ export default function DeviceFlow({
   }, [copyUserCode, deviceInfo])
 
   const handleRequestDeviceCode = async () => {
-    setErrorMessage(null)
     setIsLoading(true)
     setIsPolling(false)
 
