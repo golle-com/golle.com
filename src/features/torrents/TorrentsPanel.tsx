@@ -285,7 +285,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
               disabled={isLoading}
               required
             />
-            <button className="btn btn-primary" type="submit" disabled={isLoading || !magnetLink.trim()}>
+            <button className="btn btn-sm btn-primary" type="submit" disabled={isLoading || !magnetLink.trim()}>
               Submit
             </button>
           </div>
@@ -299,7 +299,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
             </div>
             <div className="col">
               <button
-                className="btn btn-link"
+                className="btn btn-sm btn-link"
                 type="button"
                 onClick={() => handleSort('filename')}
               >
@@ -309,7 +309,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
             <div className="col-auto">
               {!isDeleteSelectedDisabled ? (
                 <button
-                  className="btn btn-outline-danger"
+                  className="btn btn-sm btn-outline-danger"
                   type="button"
                   onClick={handleDeleteSelected}
                   disabled={isDeleteSelectedDisabled}
@@ -320,7 +320,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                 </button>
               ) : (
                 <button
-                  className="btn btn-outline-secondary"
+                  className="btn btn-sm btn-outline-secondary"
                   type="button"
                   disabled={true}
                   aria-label="Delete selected torrents"
@@ -331,7 +331,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
               )}
               {' '}
               <button
-                className="btn btn-primary"
+                className="btn btn-sm btn-primary"
                 type="button"
                 onClick={fetchTorrents}
                 disabled={isLoading}
@@ -343,7 +343,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
             </div>
             <div className="col-2">
               <button
-                className="btn btn-link"
+                className="btn btn-sm btn-link"
                 type="button"
                 onClick={() => handleSort('size')}
               >
@@ -385,7 +385,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                     <div className="row">
                       <div className="col-auto">
                         <button
-                          className="btn btn-outline-secondary"
+                          className="btn btn-sm btn-outline-secondary"
                           type="button"
                           aria-label={isExpanded ? `Collapse ${item.filename}` : `Expand ${item.filename}`}
                           onClick={() => handleToggleExpand(item.id)}
@@ -398,7 +398,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                       </div>
                       <div className="col-auto">
                         <button
-                          className="btn btn-outline-danger"
+                          className="btn btn-sm btn-outline-danger"
                           type="button"
                           onClick={() => handleDelete(item.id)}
                           disabled={isLoading}
