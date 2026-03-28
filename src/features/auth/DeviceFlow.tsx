@@ -296,7 +296,7 @@ export default function DeviceFlow({
           <div className="col-12">
             <div>
               <button
-                className="btn btn-primary"
+                className="btn btn-sm btn-primary"
                 type="button"
                 onClick={handleRequestDeviceCode}
                 disabled={isLoading}
@@ -310,7 +310,7 @@ export default function DeviceFlow({
               {deviceInfo && (
                 <div>
                   <a
-                    className="btn btn-success"
+                    className="btn btn-sm btn-success"
                     href={deviceInfo.verification_url}
                     target="_blank"
                     rel="noreferrer"
@@ -328,7 +328,7 @@ export default function DeviceFlow({
             <label className="form-label">Enter This Code on RD Device Page: </label>
             <div className="btn-group" role="group">
               <input className="form-control" type="text" value={deviceInfo?.user_code ?? ''} readOnly />
-              <button className="btn btn-secondary" type="button" onClick={handleCopyCode}>
+              <button className="btn btn-sm btn-secondary" type="button" onClick={handleCopyCode}>
                 Copy Code
               </button>
             </div>

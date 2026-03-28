@@ -196,7 +196,7 @@ export default function UnrestrictPanel({ accessToken, onLoadError, onInfo }: Un
               </label>
             </div>
             <button
-              className="btn btn-outline-secondary"
+              className="btn btn-sm btn-outline-secondary"
               type="button"
               onClick={handleCheckLinkClick}
               disabled={isChecking || isUnrestricting}
@@ -204,7 +204,7 @@ export default function UnrestrictPanel({ accessToken, onLoadError, onInfo }: Un
               Check
             </button>
             &nbsp;
-            <button className="btn btn-primary" type="submit" disabled={isChecking || isUnrestricting}>
+            <button className="btn btn-sm btn-primary" type="submit" disabled={isChecking || isUnrestricting}>
               Unrestrict
             </button>
           </form>
@@ -251,7 +251,7 @@ export default function UnrestrictPanel({ accessToken, onLoadError, onInfo }: Un
                 value={folderInput}
                 onChange={(event) => setFolderInput(event.target.value)}
               />
-            <button className="btn btn-success" type="submit" disabled={isUnrestrictingFolder}>
+            <button className="btn btn-sm btn-success" type="submit" disabled={isUnrestrictingFolder}>
               Unrestrict folder
             </button>
             </div>

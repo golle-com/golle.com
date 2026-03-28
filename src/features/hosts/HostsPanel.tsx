@@ -191,7 +191,7 @@ export default function HostsPanel({ accessToken, onLoadError }: HostsPanelProps
             <h5 className="card-title">Hosts</h5>
           </div>
           <div className="col-auto">
-            <button type="button" className="btn btn-primary" onClick={fetchHostsData} disabled={isLoading}>
+            <button type="button" className="btn btn-sm btn-primary" onClick={fetchHostsData} disabled={isLoading}>
               Refresh
             </button>
           </div>

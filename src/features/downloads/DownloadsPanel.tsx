@@ -177,7 +177,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
               <tr>
                 <th>
                   <button
-                    className="btn btn-link"
+                    className="btn btn-sm btn-link"
                     type="button"
                     onClick={() => handleSort('filename')}
                   >
@@ -186,7 +186,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                 </th>
                 <th>
                   <button
-                    className="btn btn-link"
+                    className="btn btn-sm btn-link"
                     type="button"
                     onClick={() => handleSort('filesize')}
                   >
@@ -196,7 +196,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                 <th>
                   {!isDeleteSelectedDisabled ? (
                   <button
-                    className="btn btn-outline-danger"
+                    className="btn btn-sm btn-outline-danger"
                     type="button"
                     onClick={handleDeleteSelected}
                     disabled={isDeleteSelectedDisabled}
@@ -207,7 +207,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                   </button>
                   ) : (
                   <button
-                    className="btn btn-outline-secondary"
+                    className="btn btn-sm btn-outline-secondary"
                     type="button"
                     disabled={true}
                     aria-label="Delete selected downloads"
@@ -218,7 +218,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                   )}
                   {' '}
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-sm btn-primary"
                     type="button"
                     onClick={fetchDownloads}
                     disabled={isLoading}
@@ -271,7 +271,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                     <td>
                       {item.download ? (
                         <a
-                          className="btn btn-outline-secondary"
+                          className="btn btn-sm btn-outline-secondary"
                           href={item.download}
                           target="_blank"
                           rel="noreferrer"
@@ -282,7 +282,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                         </a>
                       ) : (
                         <button
-                          className="btn btn-outline-secondary"
+                          className="btn btn-sm btn-outline-secondary"
                           type="button"
                           disabled
                           aria-label="No download link"
@@ -291,7 +291,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                         </button>
                       )}{' '}
                       <button
-                        className="btn btn-outline-danger"
+                        className="btn btn-sm btn-outline-danger"
                         type="button"
                         onClick={() => handleDelete(item.id)}
                         disabled={isLoading}
