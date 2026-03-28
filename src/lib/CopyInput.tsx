@@ -32,7 +32,7 @@ export function CopyInput({ value, readOnly = true }: CopyInputProps) {
       >
         {copied ? (
           <>
-            <span className="bi bi-check-circle me-1"></span> Copied
+            <span className="bi bi-check-circle"></span> Copied
           </>
         ) : (
           'Copy'

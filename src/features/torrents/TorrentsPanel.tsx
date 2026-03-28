@@ -423,7 +423,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                     />
                   </div>
                 </div>
-                <div className="row m-1">
+                <div className="row m-1"> {/* eslint-disable-line */}
                   <div className="col-12">
                     <div className="progress" aria-label={`Progress for ${item.filename}`}
                       role="progressbar"
