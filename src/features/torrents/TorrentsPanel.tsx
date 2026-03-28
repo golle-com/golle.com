@@ -361,7 +361,11 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
               />
             </div>
           </div>
-          {sortedTorrents.length === 0 && <div>No torrents found.</div>}
+          {isLoading ? (
+            <div>Loading...</div>
+          ) : sortedTorrents.length === 0 ? (
+            <div>No torrents found.</div>
+          ) : null}
           {sortedTorrents.map((item) => {
             const isExpanded = expandedIds.has(item.id)
             const category = getProgressCategory(item.status)
