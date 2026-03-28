@@ -3,15 +3,13 @@ import { formatBytes } from '../../lib/format'
 import {
   addMagnet,
   deleteTorrent,
-  getTorrentInfo,
   getTorrents,
   selectTorrentFiles,
   type RdError,
-  type TorrentInfo,
-  type TorrentInfoFile,
   type TorrentItem,
 } from '../../lib/realDebrid'
 import { getProgressCategory, getProgressColor, getProgressFillPercent } from '../../lib/progress'
+import TorrentFilesList from './TorrentFilesList'
 
 type TorrentsPanelProps = {
   accessToken: string | null
@@ -22,13 +20,6 @@ type TorrentsPanelProps = {
 type SortKey = 'filename' | 'size' | 'progress' | 'status'
 
 type SortDirection = 'asc' | 'desc'
-
-type FileSortKey = 'name' | 'size'
-
-type FileSortState = {
-  key: FileSortKey
-  direction: SortDirection
-}
 
 const BTIH_HASH_PATTERN = /^(?:[A-Fa-f0-9]{40}|[A-Za-z2-7]{32})$/
 
@@ -66,18 +57,8 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
   const [magnetLink, setMagnetLink] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('filename')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
-  const [fileSortById, setFileSortById] = useState<Record<string, FileSortState | undefined>>({})
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set())
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set())
-  const [torrentInfoById, setTorrentInfoById] = useState<Record<string, TorrentInfo | undefined>>({})
-  const [infoLoadingIds, setInfoLoadingIds] = useState<Set<string>>(() => new Set())
-  const [selectingFilesIds, setSelectingFilesIds] = useState<Set<string>>(() => new Set())
-
-  const markAllFilesSelected = (files: TorrentInfoFile[]): TorrentInfoFile[] =>
-    files.map((file) => ({
-      ...file,
-      selected: 1,
-    }))
 
   const fetchTorrents = async () => {
     if (!accessToken) {
@@ -164,16 +145,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
 
     try {
       const added = await addMagnet(accessToken, magnet)
-      const info = await getTorrentInfo(accessToken, added.id)
       await selectTorrentFiles(accessToken, added.id, 'all')
-
-      setTorrentInfoById((current) => ({
-        ...current,
-        [added.id]: {
-          ...info,
-          files: markAllFilesSelected(info.files),
-        },
-      }))
       setMagnetLink('')
       onInfo?.('Torrent added and all files selected.')
       await fetchTorrents()
@@ -186,44 +158,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     }
   }
 
-  const saveTorrentFilesSelection = async (
-    torrentId: string,
-    nextFiles: TorrentInfoFile[],
-    filesPayload: string,
-  ) => {
-    if (!accessToken) {
-      return
-    }
-
-    setSelectingFilesIds((current) => new Set(current).add(torrentId))
-
-    try {
-      await selectTorrentFiles(accessToken, torrentId, filesPayload)
-      setTorrentInfoById((current) => {
-        const existing = current[torrentId] as TorrentInfo
-
-        return {
-          ...current,
-          [torrentId]: {
-            ...existing,
-            files: nextFiles,
-          },
-        }
-      })
-    } catch (error) {
-      const rdError = error as RdError
-      const message = rdError.error || 'Failed to update torrent file selection.'
-      onLoadError?.(message, rdError)
-    } finally {
-      setSelectingFilesIds((current) => {
-        const next = new Set(current)
-        next.delete(torrentId)
-        return next
-      })
-    }
-  }
-
-  const handleToggleExpand = async (id: string) => {
+  const handleToggleExpand = (id: string) => {
     setExpandedIds((current) => {
       const next = new Set(current)
       if (next.has(id)) {
@@ -233,71 +168,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
       }
       return next
     })
-
-    if (!accessToken || torrentInfoById[id] || infoLoadingIds.has(id)) {
-      return
-    }
-
-    setInfoLoadingIds((current) => new Set(current).add(id))
-    try {
-      const info = await getTorrentInfo(accessToken, id)
-      setTorrentInfoById((current) => ({
-        ...current,
-        [id]: info,
-      }))
-    } catch (error) {
-      const rdError = error as RdError
-      const message = rdError.error || 'Failed to load torrent details.'
-      onLoadError?.(message, rdError)
-    } finally {
-      setInfoLoadingIds((current) => {
-        const next = new Set(current)
-        next.delete(id)
-        return next
-      })
-    }
-  }
-
-  const handleToggleTorrentFile = async (torrentId: string, fileId: number) => {
-    if (!accessToken || selectingFilesIds.has(torrentId)) {
-      return
-    }
-
-    const currentFiles = (torrentInfoById[torrentId] as TorrentInfo).files
-
-    const nextFiles: TorrentInfoFile[] = currentFiles.map((file) => {
-      if (file.id !== fileId) {
-        return file
-      }
-
-      return {
-        ...file,
-        selected: file.selected,
-      }
-    })
-
-    const selectedFileIds = nextFiles
-      .filter((file) => file.selected != 0)
-      .map((file) => String(file.id))
-
-    if (selectedFileIds.length === 0) {
-      return
-    }
-
-    const filesPayload = selectedFileIds.length === nextFiles.length ? 'all' : selectedFileIds.join(',')
-    await saveTorrentFilesSelection(torrentId, nextFiles, filesPayload)
-  }
-
-  const handleSelectAllTorrentFiles = async (torrentId: string) => {
-    if (!accessToken || selectingFilesIds.has(torrentId)) {
-      return
-    }
-
-    const currentFiles = (torrentInfoById[torrentId] as TorrentInfo).files
-
-    const nextFiles = markAllFilesSelected(currentFiles)
-
-    await saveTorrentFilesSelection(torrentId, nextFiles, 'all')
   }
 
   // Only fetch torrents when accessToken changes or component mounts, not on every render
@@ -351,28 +221,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     }
     setSortKey(nextKey)
     setSortDirection('asc')
-  }
-
-  const handleFileSort = (id: string, nextKey: FileSortKey) => {
-    setFileSortById((current) => {
-      const existing = current[id] ?? { key: 'name', direction: 'asc' }
-      if (existing.key === nextKey) {
-        return {
-          ...current,
-          [id]: {
-            key: nextKey,
-            direction: existing.direction === 'asc' ? 'desc' : 'asc',
-          },
-        }
-      }
-      return {
-        ...current,
-        [id]: {
-          key: nextKey,
-          direction: 'asc',
-        },
-      }
-    })
   }
 
   const allVisibleSelected = sortedTorrents.length > 0 && sortedTorrents.every((item) => selectedIds.has(item.id))
@@ -502,23 +350,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
           {sortedTorrents.length === 0 && <div>No torrents found.</div>}
           {sortedTorrents.map((item) => {
                 const isExpanded = expandedIds.has(item.id)
-                const info = torrentInfoById[item.id]
-                const isInfoLoading = infoLoadingIds.has(item.id)
-                const isSelectingFiles = selectingFilesIds.has(item.id)
-                const files = info?.files ?? []
-                const areAllFilesSelected =
-                  files.length > 0 && files.every((file) => file.selected === 1)
-                const fileSortState = fileSortById[item.id] ?? { key: 'name', direction: 'asc' }
-                const sortedFiles = [...files].sort((left, right) => {
-                  const leftName = left.path ?? left.name ?? ''
-                  const rightName = right.path ?? right.name ?? ''
-                  if (fileSortState.key === 'size') {
-                    const diff = (left.bytes ?? 0) - (right.bytes ?? 0)
-                    return fileSortState.direction === 'asc' ? diff : -diff
-                  }
-                  const comparison = leftName.localeCompare(rightName)
-                  return fileSortState.direction === 'asc' ? comparison : -comparison
-                })
                 const category = getProgressCategory(item.status)
                 const percent = getProgressFillPercent(category, item.progress)
                 const color = getProgressColor(category)
@@ -595,81 +426,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                     {isExpanded && (
                       <div className="row">
                         <div className="col-12">
-                          <div>
-                            {isInfoLoading && <div>Loading torrent details...</div>}
-                            {!isInfoLoading && files.length === 0 && (
-                              <div>No file details available.</div>
-                            )}
-                            {!isInfoLoading && files.length > 0 && (
-                              <div>
-                                <div className="row">
-                                  <div className="col-auto">
-                                    {isSelectingFiles ? (
-                                      <span
-                                        role="status"
-                                        aria-label={`Saving file selection for ${item.filename}`}
-                                        title="Saving file selection"
-                                      >
-                                        <i className="bi bi-floppy" aria-hidden="true"></i>
-                                        <span
-                                          className="spinner-border spinner-border-sm"
-                                          aria-hidden="true"
-                                        ></span>
-                                      </span>
-                                    ) : (
-                                      <input
-                                        className="form-check-input"
-                                        type="checkbox"
-                                        aria-label={`Select all files in ${item.filename}`}
-                                        checked={areAllFilesSelected}
-                                        onChange={() => {
-                                          void handleSelectAllTorrentFiles(item.id)
-                                        }}
-                                        disabled={isLoading || files.length === 0}
-                                        title="Select all files"
-                                      />
-                                    )}
-                                  </div>
-                                  <div className="col">
-                                    <button
-                                      className="btn btn-link"
-                                      type="button"
-                                      onClick={() => handleFileSort(item.id, 'name')}
-                                    >
-                                      File{fileSortState.key === 'name' ? (fileSortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
-                                    </button>
-                                  </div>
-                                  <div className="col-3 text-end">
-                                    <button
-                                      className="btn btn-link"
-                                      type="button"
-                                      onClick={() => handleFileSort(item.id, 'size')}
-                                    >
-                                      Size{fileSortState.key === 'size' ? (fileSortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
-                                    </button>
-                                  </div>
-                                </div>
-                                {sortedFiles.map((file, index) => (
-                                  <div className="row" key={`${item.id}-file-${file.id}`}>
-                                    <div className="col-auto">
-                                      <input
-                                        className="form-check-input"
-                                        type="checkbox"
-                                        aria-label={`Select ${file.path ?? file.name ?? `File ${index + 1}`}`}
-                                        checked={file.selected != 0}
-                                        onChange={() => {
-                                          void handleToggleTorrentFile(item.id, file.id)
-                                        }}
-                                        disabled={isSelectingFiles || isLoading}
-                                      />
-                                    </div>
-                                    <div className="col">{file.path ?? file.name ?? `File ${index + 1}`}</div>
-                                    <div className="col-3 text-end">{formatBytes(file.bytes ?? 0)}</div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
+                          <TorrentFilesList torrentId={item.id} />
                         </div>
                       </div>
                     )}
