@@ -154,7 +154,13 @@ function App() {
         <i className="bi bi-chevron-up"></i>
         <span className="visually-hidden">Scroll to top</span>
       </button>
-      <ToastContainer position="top-center" theme="colored" hideProgressBar={false} />
+      <ToastContainer
+        position="top-center"
+        theme="colored"
+        hideProgressBar={true}
+        stacked={true}
+        autoClose={2000}
+        />
     </>
   )
 }

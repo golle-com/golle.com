@@ -10,6 +10,12 @@ export type RdError = {
 
 type RdRequestError = Error & RdError
 
+type RdRequestConfig = {
+  method: NonNullable<RequestInit['method']>
+  accessToken?: string
+  formBody?: URLSearchParams
+}
+
 export type DeviceCodeResponse = {
   device_code: string
   user_code: string
@@ -51,11 +57,11 @@ export type TorrentItem = {
 }
 
 export type TorrentInfoFile = {
-  id?: number
+  id: number
   path?: string
   name?: string
   bytes?: number
-  selected?: 0 | 1
+  selected: 0 | 1
 }
 
 export type TorrentInfo = {
@@ -65,7 +71,7 @@ export type TorrentInfo = {
   progress?: number
   bytes?: number
   original_bytes?: number
-  files?: TorrentInfoFile[]
+  files: TorrentInfoFile[]
 }
 
 export type AddMagnetResponse = {
@@ -166,6 +172,41 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
   return json as T
 }
 
+function createRequestInit(config: RdRequestConfig): RequestInit {
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+  }
+
+  if (config.accessToken) {
+    headers.Authorization = `Bearer ${config.accessToken}`
+  }
+
+  if (config.formBody) {
+    headers['Content-Type'] = 'application/x-www-form-urlencoded'
+  }
+
+  return {
+    method: config.method,
+    headers,
+    body: config.formBody?.toString(),
+  }
+}
+
+async function fetchRdJson<T>(url: string, config: RdRequestConfig): Promise<T> {
+  const response = await fetch(url, createRequestInit(config))
+  return parseJsonResponse<T>(response)
+}
+
+async function fetchRdOk(url: string, config: RdRequestConfig): Promise<void> {
+  const response = await fetch(url, createRequestInit(config))
+
+  if (!response.ok) {
+    const payload: unknown = await response.json()
+    const parsed = parseRdErrorPayload(payload)
+    throw createRdError(parsed.error, response.status, parsed.error_code)
+  }
+}
+
 export async function getDeviceCode(clientId: string, newCredentials: boolean) {
   const url = new URL(`${OAUTH_BASE_URL}/device/code`)
   url.searchParams.set('client_id', clientId)
@@ -173,14 +214,9 @@ export async function getDeviceCode(clientId: string, newCredentials: boolean) {
     url.searchParams.set('new_credentials', 'yes')
   }
 
-  const response = await fetch(url.toString(), {
+  return fetchRdJson<DeviceCodeResponse>(url.toString(), {
     method: 'GET',
-    headers: {
-      Accept: 'application/json',
-    },
   })
-
-  return parseJsonResponse<DeviceCodeResponse>(response)
 }
 
 export async function getDeviceCredentials(clientId: string, deviceCode: string) {
@@ -188,14 +224,9 @@ export async function getDeviceCredentials(clientId: string, deviceCode: string)
   url.searchParams.set('client_id', clientId)
   url.searchParams.set('code', deviceCode)
 
-  const response = await fetch(url.toString(), {
+  return fetchRdJson<CredentialsResponse>(url.toString(), {
     method: 'GET',
-    headers: {
-      Accept: 'application/json',
-    },
   })
-
-  return parseJsonResponse<CredentialsResponse>(response)
 }
 
 export async function getTokenWithDeviceCode(
@@ -210,16 +241,10 @@ export async function getTokenWithDeviceCode(
     grant_type: 'http://oauth.net/grant_type/device/1.0',
   })
 
-  const response = await fetch(`${OAUTH_BASE_URL}/token`, {
+  return fetchRdJson<TokenResponse>(`${OAUTH_BASE_URL}/token`, {
     method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: body.toString(),
+    formBody: body,
   })
-
-  return parseJsonResponse<TokenResponse>(response)
 }
 
 export async function getTokenWithRefreshToken(
@@ -234,52 +259,31 @@ export async function getTokenWithRefreshToken(
     grant_type: 'http://oauth.net/grant_type/device/1.0',
   })
 
-  const response = await fetch(`${OAUTH_BASE_URL}/token`, {
+  return fetchRdJson<TokenResponse>(`${OAUTH_BASE_URL}/token`, {
     method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: body.toString(),
+    formBody: body,
   })
-
-  return parseJsonResponse<TokenResponse>(response)
 }
 
 export async function getDownloads(accessToken: string) {
-  const response = await fetch(`${API_BASE_URL}/downloads`, {
+  return fetchRdJson<DownloadItem[]>(`${API_BASE_URL}/downloads`, {
     method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
+    accessToken,
   })
-
-  return parseJsonResponse<DownloadItem[]>(response)
 }
 
 export async function getTorrents(accessToken: string) {
-  const response = await fetch(`${API_BASE_URL}/torrents`, {
+  return fetchRdJson<TorrentItem[]>(`${API_BASE_URL}/torrents`, {
     method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
+    accessToken,
   })
-
-  return parseJsonResponse<TorrentItem[]>(response)
 }
 
 export async function getTorrentInfo(accessToken: string, id: string) {
-  const response = await fetch(`${API_BASE_URL}/torrents/info/${id}`, {
+  return fetchRdJson<TorrentInfo>(`${API_BASE_URL}/torrents/info/${id}`, {
     method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
+    accessToken,
   })
-
-  return parseJsonResponse<TorrentInfo>(response)
 }
 
 export async function addMagnet(accessToken: string, magnet: string) {
@@ -287,29 +291,30 @@ export async function addMagnet(accessToken: string, magnet: string) {
     magnet,
   })
 
-  const response = await fetch(`${API_BASE_URL}/torrents/addMagnet`, {
+  return fetchRdJson<AddMagnetResponse>(`${API_BASE_URL}/torrents/addMagnet`, {
     method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: body.toString(),
+    accessToken,
+    formBody: body,
+  })
+}
+
+export async function selectTorrentFiles(accessToken: string, id: string, files: string) {
+  const body = new URLSearchParams({
+    files,
   })
 
-  return parseJsonResponse<AddMagnetResponse>(response)
+  return fetchRdOk(`${API_BASE_URL}/torrents/selectFiles/${id}`, {
+    method: 'POST',
+    accessToken,
+    formBody: body,
+  })
 }
 
 export async function getUserInfo(accessToken: string) {
-  const response = await fetch(`${API_BASE_URL}/user`, {
+  return fetchRdJson<UserInfo>(`${API_BASE_URL}/user`, {
     method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
+    accessToken,
   })
-
-  return parseJsonResponse<UserInfo>(response)
 }
 
 export async function getUnrestrictCheck(accessToken: string, link: string, password?: string) {
@@ -319,63 +324,38 @@ export async function getUnrestrictCheck(accessToken: string, link: string, pass
     url.searchParams.set('password', password)
   }
 
-  const response = await fetch(url.toString(), {
+  return fetchRdJson<UnrestrictCheckResponse>(url.toString(), {
     method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
+    accessToken,
   })
-
-  return parseJsonResponse<UnrestrictCheckResponse>(response)
 }
 
 export async function getHosts(accessToken: string) {
-  const response = await fetch(`${API_BASE_URL}/hosts`, {
+  return fetchRdJson<HostItem[] | Record<string, HostItem | string>>(`${API_BASE_URL}/hosts`, {
     method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
+    accessToken,
   })
-
-  return parseJsonResponse<HostItem[] | Record<string, HostItem | string>>(response)
 }
 
 export async function getHostsStatus(accessToken: string) {
-  const response = await fetch(`${API_BASE_URL}/hosts/status`, {
+  return fetchRdJson<Record<string, HostStatusItem | string | number>>(`${API_BASE_URL}/hosts/status`, {
     method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
+    accessToken,
   })
-
-  return parseJsonResponse<Record<string, HostStatusItem | string | number>>(response)
 }
 
 export async function getHostsDomains(accessToken: string) {
-  const response = await fetch(`${API_BASE_URL}/hosts/domains`, {
+  return fetchRdJson<Record<string, string[] | string> | string[]>(`${API_BASE_URL}/hosts/domains`, {
     method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
+    accessToken,
   })
-
-  return parseJsonResponse<Record<string, string[] | string> | string[]>(response)
 }
 
 export async function getHostsRegex(accessToken: string) {
-  const response = await fetch(`${API_BASE_URL}/hosts/regex`, {
+  return fetchRdJson<Record<string, HostRegexItem | string | string[]> | HostRegexItem[] | string[]>(`${API_BASE_URL}/hosts/regex`, {
     method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
+    accessToken,
   })
-
-  return parseJsonResponse<Record<string, HostRegexItem | string | string[]> | HostRegexItem[] | string[]>(response)
 }
 
 export async function unrestrictLink(accessToken: string, link: string, password?: string, remote?: boolean) {
@@ -391,17 +371,11 @@ export async function unrestrictLink(accessToken: string, link: string, password
     body.set('remote', remote ? '1' : '0')
   }
 
-  const response = await fetch(`${API_BASE_URL}/unrestrict/link`, {
+  return fetchRdJson<UnrestrictLinkResponse>(`${API_BASE_URL}/unrestrict/link`, {
     method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: body.toString(),
+    accessToken,
+    formBody: body,
   })
-
-  return parseJsonResponse<UnrestrictLinkResponse>(response)
 }
 
 export async function unrestrictFolder(accessToken: string, link: string) {
@@ -409,47 +383,23 @@ export async function unrestrictFolder(accessToken: string, link: string) {
     link,
   })
 
-  const response = await fetch(`${API_BASE_URL}/unrestrict/folder`, {
+  return fetchRdJson<UnrestrictFolderResponse | string[]>(`${API_BASE_URL}/unrestrict/folder`, {
     method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: body.toString(),
+    accessToken,
+    formBody: body,
   })
-
-  return parseJsonResponse<UnrestrictFolderResponse | string[]>(response)
 }
 
 export async function deleteDownload(accessToken: string, id: string) {
-  const response = await fetch(`${API_BASE_URL}/downloads/delete/${id}`, {
+  return fetchRdOk(`${API_BASE_URL}/downloads/delete/${id}`, {
     method: 'DELETE',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
+    accessToken,
   })
-
-  if (!response.ok) {
-    const payload: unknown = await response.json()
-    const parsed = parseRdErrorPayload(payload)
-    throw createRdError(parsed.error, response.status, parsed.error_code)
-  }
 }
 
 export async function deleteTorrent(accessToken: string, id: string) {
-  const response = await fetch(`${API_BASE_URL}/torrents/delete/${id}`, {
+  return fetchRdOk(`${API_BASE_URL}/torrents/delete/${id}`, {
     method: 'DELETE',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
+    accessToken,
   })
-
-  if (!response.ok) {
-    const payload: unknown = await response.json()
-    const parsed = parseRdErrorPayload(payload)
-    throw createRdError(parsed.error, response.status, parsed.error_code)
-  }
 }

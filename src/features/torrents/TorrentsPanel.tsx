@@ -5,8 +5,10 @@ import {
   deleteTorrent,
   getTorrentInfo,
   getTorrents,
+  selectTorrentFiles,
   type RdError,
   type TorrentInfo,
+  type TorrentInfoFile,
   type TorrentItem,
 } from '../../lib/realDebrid'
 import { getProgressCategory, getProgressColor, getProgressFillPercent } from '../../lib/progress'
@@ -70,6 +72,13 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set())
   const [torrentInfoById, setTorrentInfoById] = useState<Record<string, TorrentInfo | undefined>>({})
   const [infoLoadingIds, setInfoLoadingIds] = useState<Set<string>>(() => new Set())
+  const [selectingFilesIds, setSelectingFilesIds] = useState<Set<string>>(() => new Set())
+
+  const markAllFilesSelected = (files: TorrentInfoFile[]): TorrentInfoFile[] =>
+    files.map((file) => ({
+      ...file,
+      selected: 1,
+    }))
 
   const fetchTorrents = async () => {
     if (!accessToken) {
@@ -162,8 +171,19 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     setErrorMessage(null)
 
     try {
-      await addMagnet(accessToken, magnet)
+      const added = await addMagnet(accessToken, magnet)
+      const info = await getTorrentInfo(accessToken, added.id)
+      await selectTorrentFiles(accessToken, added.id, 'all')
+
+      setTorrentInfoById((current) => ({
+        ...current,
+        [added.id]: {
+          ...info,
+          files: markAllFilesSelected(info.files),
+        },
+      }))
       setMagnetLink('')
+      onInfo?.('Torrent added and all files selected.')
       await fetchTorrents()
     } catch (error) {
       const rdError = error as RdError
@@ -172,6 +192,45 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
       onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const saveTorrentFilesSelection = async (
+    torrentId: string,
+    nextFiles: TorrentInfoFile[],
+    filesPayload: string,
+  ) => {
+    if (!accessToken) {
+      return
+    }
+
+    setSelectingFilesIds((current) => new Set(current).add(torrentId))
+    setErrorMessage(null)
+
+    try {
+      await selectTorrentFiles(accessToken, torrentId, filesPayload)
+      setTorrentInfoById((current) => {
+        const existing = current[torrentId] as TorrentInfo
+
+        return {
+          ...current,
+          [torrentId]: {
+            ...existing,
+            files: nextFiles,
+          },
+        }
+      })
+    } catch (error) {
+      const rdError = error as RdError
+      const message = rdError.error || 'Failed to update torrent file selection.'
+      setErrorMessage(message)
+      onLoadError?.(message, rdError)
+    } finally {
+      setSelectingFilesIds((current) => {
+        const next = new Set(current)
+        next.delete(torrentId)
+        return next
+      })
     }
   }
 
@@ -209,6 +268,48 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
         return next
       })
     }
+  }
+
+  const handleToggleTorrentFile = async (torrentId: string, fileId: number) => {
+    if (!accessToken || selectingFilesIds.has(torrentId)) {
+      return
+    }
+
+    const currentFiles = (torrentInfoById[torrentId] as TorrentInfo).files
+
+    const nextFiles: TorrentInfoFile[] = currentFiles.map((file) => {
+      if (file.id !== fileId) {
+        return file
+      }
+
+      return {
+        ...file,
+        selected: file.selected,
+      }
+    })
+
+    const selectedFileIds = nextFiles
+      .filter((file) => file.selected != 0)
+      .map((file) => String(file.id))
+
+    if (selectedFileIds.length === 0) {
+      return
+    }
+
+    const filesPayload = selectedFileIds.length === nextFiles.length ? 'all' : selectedFileIds.join(',')
+    await saveTorrentFilesSelection(torrentId, nextFiles, filesPayload)
+  }
+
+  const handleSelectAllTorrentFiles = async (torrentId: string) => {
+    if (!accessToken || selectingFilesIds.has(torrentId)) {
+      return
+    }
+
+    const currentFiles = (torrentInfoById[torrentId] as TorrentInfo).files
+
+    const nextFiles = markAllFilesSelected(currentFiles)
+
+    await saveTorrentFilesSelection(torrentId, nextFiles, 'all')
   }
 
   // Only fetch torrents when accessToken changes or component mounts, not on every render
@@ -419,7 +520,10 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                 const isExpanded = expandedIds.has(item.id)
                 const info = torrentInfoById[item.id]
                 const isInfoLoading = infoLoadingIds.has(item.id)
+                const isSelectingFiles = selectingFilesIds.has(item.id)
                 const files = info?.files ?? []
+                const areAllFilesSelected =
+                  files.length > 0 && files.every((file) => file.selected === 1)
                 const fileSortState = fileSortById[item.id] ?? { key: 'name', direction: 'asc' }
                 const sortedFiles = [...files].sort((left, right) => {
                   const leftName = left.path ?? left.name ?? ''
@@ -515,6 +619,33 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                             {!isInfoLoading && files.length > 0 && (
                               <div>
                                 <div className="row">
+                                  <div className="col-auto">
+                                    {isSelectingFiles ? (
+                                      <span
+                                        role="status"
+                                        aria-label={`Saving file selection for ${item.filename}`}
+                                        title="Saving file selection"
+                                      >
+                                        <i className="bi bi-floppy" aria-hidden="true"></i>
+                                        <span
+                                          className="spinner-border spinner-border-sm"
+                                          aria-hidden="true"
+                                        ></span>
+                                      </span>
+                                    ) : (
+                                      <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        aria-label={`Select all files in ${item.filename}`}
+                                        checked={areAllFilesSelected}
+                                        onChange={() => {
+                                          void handleSelectAllTorrentFiles(item.id)
+                                        }}
+                                        disabled={isLoading || files.length === 0}
+                                        title="Select all files"
+                                      />
+                                    )}
+                                  </div>
                                   <div className="col">
                                     <button
                                       className="btn btn-link"
@@ -535,7 +666,19 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
                                   </div>
                                 </div>
                                 {sortedFiles.map((file, index) => (
-                                  <div className="row" key={`${item.id}-file-${file.id ?? index}`}>
+                                  <div className="row" key={`${item.id}-file-${file.id}`}>
+                                    <div className="col-auto">
+                                      <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        aria-label={`Select ${file.path ?? file.name ?? `File ${index + 1}`}`}
+                                        checked={file.selected != 0}
+                                        onChange={() => {
+                                          void handleToggleTorrentFile(item.id, file.id)
+                                        }}
+                                        disabled={isSelectingFiles || isLoading}
+                                      />
+                                    </div>
                                     <div className="col">{file.path ?? file.name ?? `File ${index + 1}`}</div>
                                     <div className="col-3 text-end">{formatBytes(file.bytes ?? 0)}</div>
                                   </div>
