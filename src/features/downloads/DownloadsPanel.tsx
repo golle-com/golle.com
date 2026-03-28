@@ -124,6 +124,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
   }
 
   const allVisibleSelected = sortedDownloads.length > 0 && sortedDownloads.every((item) => selectedIds.has(item.id))
+  const isDeleteSelectedDisabled = isLoading || selectedIds.size === 0
 
   const handleToggleAll = () => {
     setSelectedIds((current) => {
@@ -193,16 +194,29 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
                   </button>
                 </th>
                 <th>
+                  {!isDeleteSelectedDisabled ? (
                   <button
                     className="btn btn-outline-danger"
                     type="button"
                     onClick={handleDeleteSelected}
-                    disabled={isLoading || selectedIds.size === 0}
+                    disabled={isDeleteSelectedDisabled}
                     aria-label="Delete selected downloads"
                     title="Delete selected"
-                  >
+                   >
                     <i className="bi bi-trash"></i>
-                  </button>{' '}
+                  </button>
+                  ) : (
+                  <button
+                    className="btn btn-outline-secondary"
+                    type="button"
+                    disabled={true}
+                    aria-label="Delete selected downloads"
+                    title="Delete selected"
+                   >
+                    <i className="bi bi-trash"></i>
+                  </button>
+                  )}
+                  {' '}
                   <button
                     className="btn btn-primary"
                     type="button"

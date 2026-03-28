@@ -224,6 +224,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
   }
 
   const allVisibleSelected = sortedTorrents.length > 0 && sortedTorrents.every((item) => selectedIds.has(item.id))
+  const isDeleteSelectedDisabled = isLoading || selectedIds.size === 0
 
   const handleToggleAll = () => {
     setSelectedIds((current) => {
@@ -306,16 +307,29 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
               </button>
             </div>
             <div className="col-auto">
-              <button
-                className="btn btn-outline-danger"
-                type="button"
-                onClick={handleDeleteSelected}
-                disabled={isLoading || selectedIds.size === 0}
-                aria-label="Delete selected torrents"
-                title="Delete selected"
-              >
-                <i className="bi bi-trash"></i>
-              </button>{' '}
+              {!isDeleteSelectedDisabled ? (
+                <button
+                  className="btn btn-outline-danger"
+                  type="button"
+                  onClick={handleDeleteSelected}
+                  disabled={isDeleteSelectedDisabled}
+                  aria-label="Delete selected torrents"
+                  title="Delete selected"
+                >
+                  <i className="bi bi-trash"></i>
+                </button>
+              ) : (
+                <button
+                  className="btn btn-outline-secondary"
+                  type="button"
+                  disabled={true}
+                  aria-label="Delete selected torrents"
+                  title="Delete selected"
+                >
+                  <i className="bi bi-trash"></i>
+                </button>
+              )}
+              {' '}
               <button
                 className="btn btn-primary"
                 type="button"
