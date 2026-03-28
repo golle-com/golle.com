@@ -160,22 +160,29 @@ export default function UnrestrictPanel({ accessToken, onLoadError, onInfo }: Un
         </div>
 
         <section>
-          <h6>Link</h6>
           <form onSubmit={handleUnrestrictLink}>
-            <input
-              className="form-control"
-              type="url"
-              placeholder="https://example.com/file"
-              value={linkInput}
-              onChange={(event) => setLinkInput(event.target.value)}
-            />
-            <input
-              className="form-control"
-              type="text"
-              placeholder="Password (optional)"
-              value={passwordInput}
-              onChange={(event) => setPasswordInput(event.target.value)}
-            />
+            <div className="form-group">
+              <label htmlFor="link">Link:</label>
+              <input
+                className="form-control"
+                id="link"
+                type="url"
+                placeholder="https://example.com/file"
+                value={linkInput}
+                onChange={(event) => setLinkInput(event.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="pass">Password:</label>
+              <input
+                className="form-control"
+                type="text"
+                id="pass"
+                placeholder="Password (optional)"
+                value={passwordInput}
+                onChange={(event) => setPasswordInput(event.target.value)}
+              />
+            </div>
             <div className="form-check">
               <input
                 id="remoteTraffic"
@@ -188,19 +195,18 @@ export default function UnrestrictPanel({ accessToken, onLoadError, onInfo }: Un
                 Use remote traffic
               </label>
             </div>
-            <div>
-              <button
-                className="btn btn-outline-secondary"
-                type="button"
-                onClick={handleCheckLinkClick}
-                disabled={isChecking || isUnrestricting}
-              >
-                Check
-              </button>
-              <button className="btn btn-primary" type="submit" disabled={isChecking || isUnrestricting}>
-                Unrestrict
-              </button>
-            </div>
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={handleCheckLinkClick}
+              disabled={isChecking || isUnrestricting}
+            >
+              Check
+            </button>
+            &nbsp;
+            <button className="btn btn-primary" type="submit" disabled={isChecking || isUnrestricting}>
+              Unrestrict
+            </button>
           </form>
 
           {checkResult && (
@@ -233,18 +239,23 @@ export default function UnrestrictPanel({ accessToken, onLoadError, onInfo }: Un
         </section>
 
         <section>
-          <h6>Folder</h6>
           <form onSubmit={handleUnrestrictFolder}>
-            <input
-              className="form-control"
-              type="url"
-              placeholder="https://example.com/folder"
-              value={folderInput}
-              onChange={(event) => setFolderInput(event.target.value)}
-            />
-            <button className="btn btn-primary" type="submit" disabled={isUnrestrictingFolder}>
+            <div className="form-group">
+              <label htmlFor="folder">Folder:</label>
+            <div className="input-group">
+              <input
+                className="form-control"
+                type="url"
+                id="folder"
+                placeholder="https://example.com/folder"
+                value={folderInput}
+                onChange={(event) => setFolderInput(event.target.value)}
+              />
+            <button className="btn btn-success" type="submit" disabled={isUnrestrictingFolder}>
               Unrestrict folder
             </button>
+            </div>
+            </div>
           </form>
 
           {folderLinks.length > 0 && (
