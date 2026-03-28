@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getUserInfo, type RdError, type UserInfo } from '../../lib/realDebrid'
+import { CopyInput } from '../../lib/CopyInput'
 
 type AccountPanelProps = {
   accessToken: string | null
@@ -59,21 +60,46 @@ export default function AccountPanel({ accessToken, onLoadError }: AccountPanelP
       <div className="card-body">
         {isLoading && <p>Loading...</p>}
         
-        {userInfo && !isLoading && (
+        {userInfo && (
           <section>
-            <h6>User Info</h6>
             <dl>
-              <dt>ID</dt>
-              <dd>{userInfo.id}</dd>
+              <dt>Account Type</dt>
+              <dd>{userInfo.type}</dd>
+              <dt>Expiration</dt>
+              <dd>{new Date(Date.parse(userInfo.expiration || "")).toLocaleDateString()} ({userInfo.premium ? Math.floor(userInfo.premium / 86400) : 'N/A'} days remaining)</dd>
               <dt>Username</dt>
               <dd>{userInfo.username}</dd>
-              {userInfo.email && (
-                <>
-                  <dt>Email</dt>
-                  <dd>{userInfo.email}</dd>
-                </>
-              )}
+                <dt>Email</dt>
+                <dd>{userInfo.email}</dd>
+              <dt>Points</dt>
+              <dd>{userInfo.points}</dd>
+              <dt>Language</dt>
+              <dd>{userInfo.locale}</dd>
+              <dt>Avatar</dt>
+              <dd>
+                <img src={userInfo.avatar} alt="Avatar" style={{ maxWidth: '100px' }} />
+              </dd>
+              <dt>Your HTTP folder</dt>
+              <dd>
+                  https://my.real-debrid.com/&lt;password&gt;/
+              </dd>
+              <dt>WebDAV URL</dt>
+              <dd>
+                <a href="https://dav.real-debrid.com/" target="_blank" rel="noopener noreferrer">
+                  https://dav.real-debrid.com/
+                </a>
+              </dd>
+              <dt>WebDAV Username</dt>
+              <dd>{userInfo.username}</dd>
             </dl>
+          </section>
+        )}
+        {accessToken && (
+          <section>
+            <h6>API Key (This is what you are logged in as</h6>
+            <div className="input-group">
+              <CopyInput value={accessToken} />
+            </div>
           </section>
         )}
       </div>
