@@ -9,7 +9,6 @@ type AccountPanelProps = {
 
 export default function AccountPanel({ accessToken, onLoadError }: AccountPanelProps) {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   const fetchData = useCallback(async () => {
@@ -19,7 +18,6 @@ export default function AccountPanel({ accessToken, onLoadError }: AccountPanelP
     }
 
     setIsLoading(true)
-    setErrorMessage(null)
 
     try {
       const user = await getUserInfo(accessToken)
@@ -27,7 +25,6 @@ export default function AccountPanel({ accessToken, onLoadError }: AccountPanelP
     } catch (error) {
       const rdError = error as RdError
       const message = rdError.error || 'Failed to load account information.'
-      setErrorMessage(message)
       onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
@@ -61,11 +58,7 @@ export default function AccountPanel({ accessToken, onLoadError }: AccountPanelP
       </div>
       <div className="card-body">
         {isLoading && <p>Loading...</p>}
-        {errorMessage && (
-          <div className="alert alert-warning" role="alert">
-            {errorMessage}
-          </div>
-        )}
+        
         {userInfo && !isLoading && (
           <section>
             <h6>User Info</h6>

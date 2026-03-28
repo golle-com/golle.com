@@ -70,7 +70,6 @@ export default function DeviceFlow({
   const [clientId, setClientId] = useState(OPEN_SOURCE_CLIENT_ID)
   const [deviceInfo, setDeviceInfo] = useState<DeviceCodeResponse | null>(null)
   const [clientSecret, setClientSecret] = useState<string | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isPolling, setIsPolling] = useState(false)
   const pollingRef = useRef<number | null>(null)
@@ -86,7 +85,6 @@ export default function DeviceFlow({
     pollingAttemptRef.current = 0
     setIsPolling(false)
     setIsLoading(false)
-    setErrorMessage(null)
     setDeviceInfo(null)
     setClientSecret(null)
     setClientId(OPEN_SOURCE_CLIENT_ID)
@@ -105,7 +103,7 @@ export default function DeviceFlow({
           return true
         }
       } catch (error) {
-        setErrorMessage(String(error));
+        onAuthError(String(error))
       }
 
       const copied = copyWithExecCommand(code)
@@ -142,8 +140,9 @@ export default function DeviceFlow({
       void copyUserCode(result.user_code)
     } catch (error) {
       const rdError = error as RdError
-      setErrorMessage(rdError.error || 'Unable to request device code.')
+      const message = rdError.error || 'Unable to request device code.'
       setIsPolling(false)
+      onAuthError(message)
     } finally {
       setIsLoading(false)
     }
@@ -154,7 +153,6 @@ export default function DeviceFlow({
       return 'stop'
     }
 
-    setErrorMessage(null)
     setIsLoading(true)
 
     try {
@@ -213,7 +211,7 @@ export default function DeviceFlow({
         onPendingInfo(pendingMessage, remainingMs)
         return 'pending'
       } else {
-        setErrorMessage(message)
+        onAuthError(message)
       }
 
       if (rdError.status && rdError.status !== 403) {
@@ -337,15 +335,7 @@ export default function DeviceFlow({
           </div>
         </div>
         )}
-        {errorMessage && (
-          <div className="row">
-            <div className="col-12">
-              <div className="alert alert-warning" role="alert">
-                {errorMessage}
-              </div>
-            </div>
-          </div>
-        )}
+        
       </div>
     </div>
   )

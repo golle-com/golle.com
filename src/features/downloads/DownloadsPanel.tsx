@@ -9,7 +9,6 @@ type DownloadsPanelProps = {
 
 export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPanelProps) {
   const [downloads, setDownloads] = useState<DownloadItem[]>([])
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [filterQuery, setFilterQuery] = useState('')
   const [sortKey, setSortKey] = useState<'filename' | 'filesize'>('filename')
@@ -23,7 +22,6 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
     }
 
     setIsLoading(true)
-    setErrorMessage(null)
 
     try {
       const items = await getDownloads(accessToken)
@@ -32,7 +30,6 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
     } catch (error) {
       const rdError = error as RdError
       const message = rdError.error || 'Failed to load downloads.'
-      setErrorMessage(message)
       onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
@@ -45,7 +42,6 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
     }
 
     setIsLoading(true)
-    setErrorMessage(null)
 
     try {
       await deleteDownload(accessToken, id)
@@ -58,7 +54,6 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
     } catch (error) {
       const rdError = error as RdError
       const message = rdError.error || 'Failed to delete download.'
-      setErrorMessage(message)
       onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
@@ -71,7 +66,6 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
     }
 
     setIsLoading(true)
-    setErrorMessage(null)
 
     try {
       const ids = Array.from(selectedIds)
@@ -82,7 +76,6 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
     } catch (error) {
       const rdError = error as RdError
       const message = rdError.error || 'Failed to delete selected downloads.'
-      setErrorMessage(message)
       onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
@@ -176,11 +169,7 @@ export default function DownloadsPanel({ accessToken, onLoadError }: DownloadsPa
         </div>
       </div>
       <div className="card-body">
-        {errorMessage && (
-          <div className="alert alert-warning" role="alert">
-            {errorMessage}
-          </div>
-        )}
+        
         <div className="table-responsive">
           <table className="table">
             <thead>

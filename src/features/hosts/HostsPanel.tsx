@@ -152,7 +152,6 @@ function getStatusRows(payload: unknown): HostStatusRow[] {
 export default function HostsPanel({ accessToken, onLoadError }: HostsPanelProps) {
   const [rows, setRows] = useState<HostStatusRow[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const fetchHostsData = useCallback(async () => {
     if (!accessToken) {
@@ -161,7 +160,6 @@ export default function HostsPanel({ accessToken, onLoadError }: HostsPanelProps
     }
 
     setIsLoading(true)
-    setErrorMessage(null)
 
     try {
       const statusPayload = await getHostsStatus(accessToken)
@@ -169,7 +167,6 @@ export default function HostsPanel({ accessToken, onLoadError }: HostsPanelProps
     } catch (error) {
       const rdError = error as RdError
       const message = rdError.error || 'Failed to load hosts data.'
-      setErrorMessage(message)
       onLoadError?.(message)
     } finally {
       setIsLoading(false)
@@ -201,11 +198,7 @@ export default function HostsPanel({ accessToken, onLoadError }: HostsPanelProps
         </div>
       </div>
       <div className="card-body">
-        {errorMessage && (
-          <div className="alert alert-warning" role="alert">
-            {errorMessage}
-          </div>
-        )}
+        
 
         <div className="container-fluid">
           {isLoading ? (

@@ -61,7 +61,6 @@ function getTorrentSize(item: TorrentItem) {
 
 export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: TorrentsPanelProps) {
   const [torrents, setTorrents] = useState<TorrentItem[]>([])
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [filterQuery, setFilterQuery] = useState('')
   const [magnetLink, setMagnetLink] = useState('')
@@ -87,7 +86,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     }
 
     setIsLoading(true)
-    setErrorMessage(null)
 
     try {
       const items = await getTorrents(accessToken)
@@ -96,7 +94,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     } catch (error) {
       const rdError = error as RdError
       const message = rdError.error || 'Failed to load torrents.'
-      setErrorMessage(message)
       onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
@@ -109,7 +106,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     }
 
     setIsLoading(true)
-    setErrorMessage(null)
 
     try {
       await deleteTorrent(accessToken, id)
@@ -123,7 +119,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     } catch (error) {
       const rdError = error as RdError
       const message = rdError.error || 'Failed to delete torrent.'
-      setErrorMessage(message)
       onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
@@ -136,7 +131,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     }
 
     setIsLoading(true)
-    setErrorMessage(null)
 
     try {
       const ids = Array.from(selectedIds)
@@ -148,7 +142,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     } catch (error) {
       const rdError = error as RdError
       const message = rdError.error || 'Failed to delete selected torrents.'
-      setErrorMessage(message)
       onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
@@ -163,12 +156,11 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
 
     const magnet = normalizeMagnetInput(magnetLink)
     if (!magnet) {
-      setErrorMessage('Please enter a valid magnet link or Info hash.')
+      onLoadError?.('Please enter a valid magnet link or Info hash.')
       return
     }
 
     setIsLoading(true)
-    setErrorMessage(null)
 
     try {
       const added = await addMagnet(accessToken, magnet)
@@ -188,7 +180,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     } catch (error) {
       const rdError = error as RdError
       const message = rdError.error || 'Failed to add torrent magnet.'
-      setErrorMessage(message)
       onLoadError?.(message, rdError)
     } finally {
       setIsLoading(false)
@@ -205,7 +196,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     }
 
     setSelectingFilesIds((current) => new Set(current).add(torrentId))
-    setErrorMessage(null)
 
     try {
       await selectTorrentFiles(accessToken, torrentId, filesPayload)
@@ -223,7 +213,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     } catch (error) {
       const rdError = error as RdError
       const message = rdError.error || 'Failed to update torrent file selection.'
-      setErrorMessage(message)
       onLoadError?.(message, rdError)
     } finally {
       setSelectingFilesIds((current) => {
@@ -259,7 +248,6 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     } catch (error) {
       const rdError = error as RdError
       const message = rdError.error || 'Failed to load torrent details.'
-      setErrorMessage(message)
       onLoadError?.(message, rdError)
     } finally {
       setInfoLoadingIds((current) => {
@@ -454,11 +442,7 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
           </div>
           <div className="form-text">Limits: 2000GB torrent size, 72 hours torrent download duration.</div>
         </form>
-        {errorMessage && (
-          <div className="alert alert-warning" role="alert">
-            {errorMessage}
-          </div>
-        )}
+        
         <div>
           <div className="row">
             <div className="col-auto">
