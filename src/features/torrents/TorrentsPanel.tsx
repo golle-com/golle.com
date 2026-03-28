@@ -270,31 +270,31 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
         </div>
       </div>
       <div className="card-body">
-        <form onSubmit={handleAddMagnet}>
-          <label className="form-label" htmlFor="magnetLink">
-            Add magnet link or Info hash
-          </label>
-          <div className="input-group">
-            <input
-              id="magnetLink"
-              className="form-control"
-              type="text"
-              placeholder="magnet:?xt=urn:btih:... or info hash"
-              value={magnetLink}
-              onChange={(event) => setMagnetLink(event.target.value)}
-              disabled={isLoading}
-              required
-            />
-            <button className="btn btn-sm btn-primary" type="submit" disabled={isLoading || !magnetLink.trim()}>
-              Submit
-            </button>
-          </div>
-          <div className="form-text">Limits: 2000GB torrent size, 72 hours torrent download duration.</div>
-        </form>
-        
-        <div>
+        <div className="form-group row">
+          <form onSubmit={handleAddMagnet}>
+            <label className="form-label" htmlFor="magnetLink">
+              Add magnet link or Info hash
+            </label>
+            <div className="input-group">
+              <input
+                id="magnetLink"
+                className="form-control"
+                type="text"
+                placeholder="magnet:?xt=urn:btih:... or info hash"
+                value={magnetLink}
+                onChange={(event) => setMagnetLink(event.target.value)}
+                disabled={isLoading}
+                required
+              />
+              <button className="btn btn-sm btn-primary" type="submit" disabled={isLoading || !magnetLink.trim()}>
+                Submit
+              </button>
+            </div>
+            <div className="form-text">Limits: 2000GB torrent size, 72 hours torrent download duration.</div>
+          </form>
+        </div>
           <div className="row">
-            <div className="col-auto">
+            <div className="col-auto ">
               <span className="visually-hidden">Toggle details</span>
             </div>
             <div className="col">
@@ -363,91 +363,91 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
           </div>
           {sortedTorrents.length === 0 && <div>No torrents found.</div>}
           {sortedTorrents.map((item) => {
-                const isExpanded = expandedIds.has(item.id)
-                const category = getProgressCategory(item.status)
-                const percent = getProgressFillPercent(category, item.progress)
-                const color = getProgressColor(category)
-                const normalizedPercent = Math.min(Math.max(percent, 0), 100)
-                const visiblePercent = normalizedPercent === 0 ? 4 : normalizedPercent
-                const progressLabel =
-                  category === 'done'
-                    ? 'Complete'
-                    : category === 'error'
-                      ? 'Error'
-                      : `${Math.round(normalizedPercent)}%`
-                const progressStyle = {
-                  width: `${visiblePercent}%`,
-                  backgroundColor: color,
-                }
+            const isExpanded = expandedIds.has(item.id)
+            const category = getProgressCategory(item.status)
+            const percent = getProgressFillPercent(category, item.progress)
+            const color = getProgressColor(category)
+            const normalizedPercent = Math.min(Math.max(percent, 0), 100)
+            const visiblePercent = normalizedPercent === 0 ? 4 : normalizedPercent
+            const progressLabel =
+              category === 'done'
+                ? 'Complete'
+                : category === 'error'
+                  ? 'Error'
+                  : `${Math.round(normalizedPercent)}%`
+            const progressStyle = {
+              width: `${visiblePercent}%`,
+              backgroundColor: color,
+            }
 
-                return (
-                  <Fragment key={item.id}>
-                    <div className="row">
-                      <div className="col-auto">
-                        <button
-                          className="btn btn-sm btn-outline-secondary"
-                          type="button"
-                          aria-label={isExpanded ? `Collapse ${item.filename}` : `Expand ${item.filename}`}
-                          onClick={() => handleToggleExpand(item.id)}
-                        >
-                          {isExpanded ? '-' : '+'}
-                        </button>
-                      </div>
-                      <div className="col">
-                        <strong>{item.filename}</strong>
-                      </div>
-                      <div className="col-auto">
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          type="button"
-                          onClick={() => handleDelete(item.id)}
-                          disabled={isLoading}
-                          aria-label={`Delete ${item.filename}`}
-                          title="Delete"
-                        >
-                          <i className="bi bi-trash"></i>
-                        </button>
-                      </div>
-                      <div className="col-2">{formatBytes(getTorrentSize(item))}</div>
-                      <div className="col-auto">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          aria-label={`Select ${item.filename}`}
-                          checked={selectedIds.has(item.id)}
-                          onChange={() => handleToggleOne(item.id)}
-                        />
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-12">
-                        <div className="progress" aria-label={`Progress for ${item.filename}`}
-                            role="progressbar"
-                            aria-valuenow={Math.round(normalizedPercent)}
-                            aria-valuemin={0}
-                            aria-valuemax={100}
-                            aria-valuetext={progressLabel}
-                        >
-                          <div
-                            className="progress-bar text-dark"
-                            style={progressStyle}
-                          >
-                            {progressLabel}
-                          </div>
-                        </div>
+            return (
+              <Fragment key={item.id}>
+                <div className="row">
+                  <div className="col-auto">
+                    <button
+                      className="btn btn-sm btn-outline-secondary"
+                      type="button"
+                      aria-label={isExpanded ? `Collapse ${item.filename}` : `Expand ${item.filename}`}
+                      onClick={() => handleToggleExpand(item.id)}
+                    >
+                      {isExpanded ? '-' : '+'}
+                    </button>
+                  </div>
+                  <div className="col">
+                    <strong>{item.filename}</strong>
+                  </div>
+                  <div className="col-auto">
+                    <button
+                      className="btn btn-sm btn-outline-danger"
+                      type="button"
+                      onClick={() => handleDelete(item.id)}
+                      disabled={isLoading}
+                      aria-label={`Delete ${item.filename}`}
+                      title="Delete"
+                    >
+                      <i className="bi bi-trash"></i>
+                    </button>
+                  </div>
+                  <div className="col-2">{formatBytes(getTorrentSize(item))}</div>
+                  <div className="col-auto">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      aria-label={`Select ${item.filename}`}
+                      checked={selectedIds.has(item.id)}
+                      onChange={() => handleToggleOne(item.id)}
+                    />
+                  </div>
+                </div>
+                <div className="row m-1">
+                  <div className="col-12">
+                    <div className="progress" aria-label={`Progress for ${item.filename}`}
+                      role="progressbar"
+                      aria-valuenow={Math.round(normalizedPercent)}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuetext={progressLabel}
+                    >
+                      <div
+                        className="progress-bar text-dark"
+                        style={progressStyle}
+                      >
+                        {progressLabel}
                       </div>
                     </div>
-                    {isExpanded && (
-                      <div className="row">
-                        <div className="col-12">
-                          <TorrentFilesList torrentId={item.id} />
-                        </div>
-                      </div>
-                    )}
-                  </Fragment>
-                )
-              })}
-        </div>
+                  </div>
+                </div>
+                {isExpanded && (
+                  <div className="row">
+                    <div className="col-12">
+                      <TorrentFilesList torrentId={item.id} />
+                    </div>
+                  </div>
+                )}
+              </Fragment>
+            )
+          })}
+
       </div>
     </div>
   )
