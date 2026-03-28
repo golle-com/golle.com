@@ -1,3 +1,9 @@
+import {
+  BUILD_DATE,
+  GIT_SHA,
+  GIT_SHA_FULL,
+} from '../../build-info'
+
 function AboutPanel() {
   return (
     <div className="card">
@@ -18,6 +24,15 @@ function AboutPanel() {
           <a href="https://www.cloudflarestatus.com/">
             https://www.cloudflarestatus.com/
           </a>
+        </div>
+        <div>
+          <strong>Build date:</strong> {BUILD_DATE}
+        </div>
+        <div>
+          <strong>Git SHA:</strong> {GIT_SHA}
+        </div>
+        <div>
+          <strong>Git SHA (full):</strong> <a href="https://github.com/golle-com/golle.com/commit/{GIT_SHA_FULL}">{GIT_SHA_FULL}</a>
         </div>
       </div>
     </div>
