@@ -1,4 +1,4 @@
-const PROXY_BASE_URL = 'https://rd-proxy.golle.workers.dev'
+const PROXY_BASE_URL = import.meta.env.VITE_PROXY_BASE_URL || 'https://rd-proxy.golle.workers.dev'
 const API_BASE_URL = `${PROXY_BASE_URL}/rest/1.0`
 const OAUTH_BASE_URL = `${PROXY_BASE_URL}/oauth/v2`
 

@@ -51,6 +51,16 @@ npm ci
 npm run dev
 ```
 
+### Configuration
+
+The app can be configured via environment variables. Create a `.env` file in the root directory based on `.env.example`:
+
+```bash
+VITE_PROXY_BASE_URL=https://rd-proxy.golle.workers.dev
+```
+npm run dev
+```
+
 ### Lint
 
 ```bash
