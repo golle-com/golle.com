@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-toastify'
 import { formatBytes } from '../../lib/format'
-import { getTorrentInfo, selectTorrentFiles, type RdError, type TorrentInfoFile } from '../../lib/realDebrid'
+import {
+  getErrorMessage,
+  getTorrentInfo,
+  selectTorrentFiles,
+  type TorrentInfoFile,
+} from '../../lib/realDebrid'
 import { loadAuthTokens } from '../../lib/storage'
 
 type FileSortKey = 'name' | 'size'
@@ -13,11 +18,6 @@ type FileSortState = {
 
 type TorrentFilesListProps = {
   torrentId: string
-}
-
-function getErrorMessage(error: unknown, fallback: string) {
-  const rdError = error as RdError
-  return rdError?.error || fallback
 }
 
 export default function TorrentFilesList({ torrentId }: TorrentFilesListProps) {
@@ -146,60 +146,60 @@ export default function TorrentFilesList({ torrentId }: TorrentFilesListProps) {
       {!isInfoLoading && files.length === 0 && <div>No file details available.</div>}
       {!isInfoLoading && files.length > 0 && (
         <>
-      <div className="row">
-        <div className="col-auto">
-          {isSelectingFiles ? (
-            <span
-              role="status"
-              aria-label={`Saving file selection for ${torrentName}`}
-              title="Saving file selection"
-            >
-              <i className="bi bi-floppy" aria-hidden="true"></i>
-              <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
-            </span>
-          ) : (
-            <input
-              className="form-check-input"
-              type="checkbox"
-              aria-label={`Select all files in ${torrentName}`}
-              checked={areAllFilesSelected}
-              onChange={() => {
-                void handleSelectAll()
-              }}
-              disabled={files.length === 0}
-              title="Select all files"
-            />
-          )}
-        </div>
-        <div className="col">
-          <button className="btn btn-link" type="button" onClick={() => handleSort('name')}>
-            File{fileSortState.key === 'name' ? (fileSortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
-          </button>
-        </div>
-        <div className="col-3 text-end">
-          <button className="btn btn-link" type="button" onClick={() => handleSort('size')}>
-            Size{fileSortState.key === 'size' ? (fileSortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
-          </button>
-        </div>
-      </div>
-      {sortedFiles.map((file, index) => (
-        <div className="row" key={`${torrentId}-file-${file.id}`}>
-          <div className="col-auto">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              aria-label={`Select ${file.path ?? file.name ?? `File ${index + 1}`}`}
-              checked={file.selected !== 0}
-              onChange={() => {
-                void handleToggleFile(file.id)
-              }}
-              disabled={isSelectingFiles}
-            />
+          <div className="row">
+            <div className="col-auto">
+              {isSelectingFiles ? (
+                <span
+                  role="status"
+                  aria-label={`Saving file selection for ${torrentName}`}
+                  title="Saving file selection"
+                >
+                  <i className="bi bi-floppy" aria-hidden="true"></i>
+                  <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                </span>
+              ) : (
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  aria-label={`Select all files in ${torrentName}`}
+                  checked={areAllFilesSelected}
+                  onChange={() => {
+                    void handleSelectAll()
+                  }}
+                  disabled={files.length === 0}
+                  title="Select all files"
+                />
+              )}
+            </div>
+            <div className="col">
+              <button className="btn btn-link" type="button" onClick={() => handleSort('name')}>
+                File{fileSortState.key === 'name' ? (fileSortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
+              </button>
+            </div>
+            <div className="col-3 text-end">
+              <button className="btn btn-link" type="button" onClick={() => handleSort('size')}>
+                Size{fileSortState.key === 'size' ? (fileSortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
+              </button>
+            </div>
           </div>
-          <div className="col">{file.path ?? file.name ?? `File ${index + 1}`}</div>
-          <div className="col-3 text-end">{formatBytes(file.bytes ?? 0)}</div>
-        </div>
-      ))}
+          {sortedFiles.map((file, index) => (
+            <div className="row" key={`${torrentId}-file-${file.id}`}>
+              <div className="col-auto">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  aria-label={`Select ${file.path ?? file.name ?? `File ${index + 1}`}`}
+                  checked={file.selected !== 0}
+                  onChange={() => {
+                    void handleToggleFile(file.id)
+                  }}
+                  disabled={isSelectingFiles}
+                />
+              </div>
+              <div className="col">{file.path ?? file.name ?? `File ${index + 1}`}</div>
+              <div className="col-3 text-end">{formatBytes(file.bytes ?? 0)}</div>
+            </div>
+          ))}
         </>
       )}
     </div>

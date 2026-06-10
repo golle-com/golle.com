@@ -1,15 +1,21 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import { toast } from 'react-toastify'
 import { formatBytes } from '../../lib/format'
 import {
   addMagnet,
   deleteTorrent,
+  getErrorMessage,
+  getTorrentInfo,
   getTorrents,
   selectTorrentFiles,
+  unrestrictLinks,
   type RdError,
   type TorrentItem,
 } from '../../lib/realDebrid'
 import { getProgressCategory, getProgressColor, getProgressFillPercent } from '../../lib/progress'
 import TorrentFilesList from './TorrentFilesList'
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 type TorrentsPanelProps = {
   accessToken: string | null
@@ -142,17 +148,68 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
     }
 
     setIsLoading(true)
+    const toastId = toast.loading('Adding torrent...')
 
     try {
       const added = await addMagnet(accessToken, magnet)
-      await selectTorrentFiles(accessToken, added.id, 'all')
       setMagnetLink('')
-      onInfo?.('Torrent added and all files selected.')
+      toast.update(toastId, { render: 'Selecting files...' })
+
+      await selectTorrentFiles(accessToken, added.id, 'all')
+
+      let status = ''
+      let info = null
+
+      while (status !== 'downloaded') {
+        info = await getTorrentInfo(accessToken, added.id)
+        status = info.status || 'error'
+
+        if (['error', 'magnet_error', 'dead', 'virus'].includes(status)) {
+          throw new Error(`Torrent error: ${status}`)
+        }
+
+        if (status === 'downloaded') {
+          break
+        }
+
+        if (status === 'waiting_files_selection') {
+          await selectTorrentFiles(accessToken, added.id, 'all')
+        }
+
+        const progress = info.progress ?? 0
+        toast.update(toastId, {
+          render: `Status: ${status} (${progress}%)`,
+          progress: progress / 100,
+        })
+
+        await sleep(2000)
+      }
+
+      const links = info?.links || []
+      if (links.length > 0) {
+        toast.update(toastId, { render: `Unrestricting ${links.length} files...`, progress: 0 })
+        await unrestrictLinks(accessToken, links, (current, total) => {
+          toast.update(toastId, {
+            render: `Unrestricting files (${current}/${total})...`,
+            progress: current / total,
+          })
+        })
+      }
+
+      toast.update(toastId, {
+        render: 'Torrent added and all files unrestricted!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+      })
       await fetchTorrents()
     } catch (error) {
-      const rdError = error as RdError
-      const message = rdError.error || 'Failed to add torrent magnet.'
-      onLoadError?.(message, rdError)
+      toast.update(toastId, {
+        render: getErrorMessage(error, 'Failed to process torrent.'),
+        type: 'error',
+        isLoading: false,
+        autoClose: 5000,
+      })
     } finally {
       setIsLoading(false)
     }
@@ -293,164 +350,164 @@ export default function TorrentsPanel({ accessToken, onLoadError, onInfo }: Torr
             <div className="form-text">Limits: 2000GB torrent size, 72 hours torrent download duration.</div>
           </form>
         </div>
-          <div className="row">
-            <div className="col-auto ">
-              <span className="visually-hidden">Toggle details</span>
-            </div>
-            <div className="col">
-              <button
-                className="btn btn-sm btn-link"
-                type="button"
-                onClick={() => handleSort('filename')}
-              >
-                Torrent{sortKey === 'filename' ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
-              </button>
-            </div>
-            <div className="col-auto">
-              {!isDeleteSelectedDisabled ? (
-                <button
-                  className="btn btn-sm btn-outline-danger"
-                  type="button"
-                  onClick={handleDeleteSelected}
-                  disabled={isDeleteSelectedDisabled}
-                  aria-label="Delete selected torrents"
-                  title="Delete selected"
-                >
-                  <i className="bi bi-trash"></i>
-                </button>
-              ) : (
-                <button
-                  className="btn btn-sm btn-outline-secondary"
-                  type="button"
-                  disabled={true}
-                  aria-label="Delete selected torrents"
-                  title="Delete selected"
-                >
-                  <i className="bi bi-trash"></i>
-                </button>
-              )}
-              {' '}
-              <button
-                className="btn btn-sm btn-primary"
-                type="button"
-                onClick={fetchTorrents}
-                disabled={isLoading}
-                aria-label="Refresh torrents"
-                title="Refresh"
-              >
-                <i className="bi bi-arrow-clockwise"></i>
-              </button>
-            </div>
-            <div className="col-2">
-              <button
-                className="btn btn-sm btn-link"
-                type="button"
-                onClick={() => handleSort('size')}
-              >
-                Size{sortKey === 'size' ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
-              </button>
-            </div>
-            <div className="col-auto">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                aria-label="Select all torrents"
-                checked={allVisibleSelected}
-                onChange={handleToggleAll}
-                disabled={sortedTorrents.length === 0}
-              />
-            </div>
+        <div className="row">
+          <div className="col-auto ">
+            <span className="visually-hidden">Toggle details</span>
           </div>
-          {isLoading ? (
-            <div>Loading...</div>
-          ) : sortedTorrents.length === 0 ? (
-            <div>No torrents found.</div>
-          ) : null}
-          {sortedTorrents.map((item) => {
-            const isExpanded = expandedIds.has(item.id)
-            const category = getProgressCategory(item.status)
-            const percent = getProgressFillPercent(category, item.progress)
-            const color = getProgressColor(category)
-            const normalizedPercent = Math.min(Math.max(percent, 0), 100)
-            const visiblePercent = normalizedPercent === 0 ? 4 : normalizedPercent
-            const progressLabel =
-              category === 'done'
-                ? 'Complete'
-                : category === 'error'
-                  ? 'Error'
-                  : `${Math.round(normalizedPercent)}%`
-            const progressStyle = {
-              width: `${visiblePercent}%`,
-              backgroundColor: color,
-            }
+          <div className="col">
+            <button
+              className="btn btn-sm btn-link"
+              type="button"
+              onClick={() => handleSort('filename')}
+            >
+              Torrent{sortKey === 'filename' ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
+            </button>
+          </div>
+          <div className="col-auto">
+            {!isDeleteSelectedDisabled ? (
+              <button
+                className="btn btn-sm btn-outline-danger"
+                type="button"
+                onClick={handleDeleteSelected}
+                disabled={isDeleteSelectedDisabled}
+                aria-label="Delete selected torrents"
+                title="Delete selected"
+              >
+                <i className="bi bi-trash"></i>
+              </button>
+            ) : (
+              <button
+                className="btn btn-sm btn-outline-secondary"
+                type="button"
+                disabled={true}
+                aria-label="Delete selected torrents"
+                title="Delete selected"
+              >
+                <i className="bi bi-trash"></i>
+              </button>
+            )}
+            {' '}
+            <button
+              className="btn btn-sm btn-primary"
+              type="button"
+              onClick={fetchTorrents}
+              disabled={isLoading}
+              aria-label="Refresh torrents"
+              title="Refresh"
+            >
+              <i className="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+          <div className="col-2">
+            <button
+              className="btn btn-sm btn-link"
+              type="button"
+              onClick={() => handleSort('size')}
+            >
+              Size{sortKey === 'size' ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
+            </button>
+          </div>
+          <div className="col-auto">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              aria-label="Select all torrents"
+              checked={allVisibleSelected}
+              onChange={handleToggleAll}
+              disabled={sortedTorrents.length === 0}
+            />
+          </div>
+        </div>
+        {isLoading ? (
+          <div>Loading...</div>
+        ) : sortedTorrents.length === 0 ? (
+          <div>No torrents found.</div>
+        ) : null}
+        {sortedTorrents.map((item) => {
+          const isExpanded = expandedIds.has(item.id)
+          const category = getProgressCategory(item.status)
+          const percent = getProgressFillPercent(category, item.progress)
+          const color = getProgressColor(category)
+          const normalizedPercent = Math.min(Math.max(percent, 0), 100)
+          const visiblePercent = normalizedPercent === 0 ? 4 : normalizedPercent
+          const progressLabel =
+            category === 'done'
+              ? 'Complete'
+              : category === 'error'
+                ? 'Error'
+                : `${Math.round(normalizedPercent)}%`
+          const progressStyle = {
+            width: `${visiblePercent}%`,
+            backgroundColor: color,
+          }
 
-            return (
-              <Fragment key={item.id}>
+          return (
+            <Fragment key={item.id}>
+              <div className="row">
+                <div className="col-auto">
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    type="button"
+                    aria-label={isExpanded ? `Collapse ${item.filename}` : `Expand ${item.filename}`}
+                    onClick={() => handleToggleExpand(item.id)}
+                  >
+                    {isExpanded ? '-' : '+'}
+                  </button>
+                </div>
+                <div className="col">
+                  <strong>{item.filename}</strong>
+                </div>
+                <div className="col-auto">
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    type="button"
+                    onClick={() => handleDelete(item.id)}
+                    disabled={isLoading}
+                    aria-label={`Delete ${item.filename}`}
+                    title="Delete"
+                  >
+                    <i className="bi bi-trash"></i>
+                  </button>
+                </div>
+                <div className="col-2">{formatBytes(getTorrentSize(item))}</div>
+                <div className="col-auto">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    aria-label={`Select ${item.filename}`}
+                    checked={selectedIds.has(item.id)}
+                    onChange={() => handleToggleOne(item.id)}
+                  />
+                </div>
+              </div>
+              <div className="row m-1"> {/* eslint-disable-line */}
+                <div className="col-12">
+                  <div className="progress" aria-label={`Progress for ${item.filename}`}
+                    role="progressbar"
+                    aria-valuenow={Math.round(normalizedPercent)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuetext={progressLabel}
+                  >
+                    <div
+                      className="progress-bar text-dark"
+                      style={progressStyle}
+                    >
+                      {progressLabel}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {isExpanded && (
                 <div className="row">
-                  <div className="col-auto">
-                    <button
-                      className="btn btn-sm btn-outline-secondary"
-                      type="button"
-                      aria-label={isExpanded ? `Collapse ${item.filename}` : `Expand ${item.filename}`}
-                      onClick={() => handleToggleExpand(item.id)}
-                    >
-                      {isExpanded ? '-' : '+'}
-                    </button>
-                  </div>
-                  <div className="col">
-                    <strong>{item.filename}</strong>
-                  </div>
-                  <div className="col-auto">
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      type="button"
-                      onClick={() => handleDelete(item.id)}
-                      disabled={isLoading}
-                      aria-label={`Delete ${item.filename}`}
-                      title="Delete"
-                    >
-                      <i className="bi bi-trash"></i>
-                    </button>
-                  </div>
-                  <div className="col-2">{formatBytes(getTorrentSize(item))}</div>
-                  <div className="col-auto">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      aria-label={`Select ${item.filename}`}
-                      checked={selectedIds.has(item.id)}
-                      onChange={() => handleToggleOne(item.id)}
-                    />
-                  </div>
-                </div>
-                <div className="row m-1"> {/* eslint-disable-line */}
                   <div className="col-12">
-                    <div className="progress" aria-label={`Progress for ${item.filename}`}
-                      role="progressbar"
-                      aria-valuenow={Math.round(normalizedPercent)}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                      aria-valuetext={progressLabel}
-                    >
-                      <div
-                        className="progress-bar text-dark"
-                        style={progressStyle}
-                      >
-                        {progressLabel}
-                      </div>
-                    </div>
+                    <TorrentFilesList torrentId={item.id} />
                   </div>
                 </div>
-                {isExpanded && (
-                  <div className="row">
-                    <div className="col-12">
-                      <TorrentFilesList torrentId={item.id} />
-                    </div>
-                  </div>
-                )}
-              </Fragment>
-            )
-          })}
+              )}
+            </Fragment>
+          )
+        })}
 
       </div>
     </div>

@@ -1,4 +1,5 @@
-const PROXY_BASE_URL = 'https://rd-proxy.golle.workers.dev'
+// const PROXY_BASE_URL = 'https://rd-proxy.golle.workers.dev'
+const PROXY_BASE_URL = 'https://api.real-debrid.com'
 const API_BASE_URL = `${PROXY_BASE_URL}/rest/1.0`
 const OAUTH_BASE_URL = `${PROXY_BASE_URL}/oauth/v2`
 
@@ -67,11 +68,20 @@ export type TorrentInfoFile = {
 export type TorrentInfo = {
   id: string
   filename?: string
-  status?: string
-  progress?: number
+  original_filename?: string
+  hash?: string
   bytes?: number
   original_bytes?: number
+  host?: string
+  split?: number
+  progress?: number
+  status?: string
+  added?: string
   files: TorrentInfoFile[]
+  links?: string[]
+  ended?: string
+  speed?: number
+  seeders?: number
 }
 
 export type AddMagnetResponse = {
@@ -131,6 +141,11 @@ export type HostStatusItem = {
 
 export type HostRegexItem = {
   [key: string]: unknown
+}
+
+export function getErrorMessage(error: unknown, fallback: string) {
+  const rdError = error as RdError
+  return rdError?.error || (error as Error)?.message || fallback
 }
 
 function createRdError(message: string, status?: number, errorCode?: number): RdRequestError {
@@ -376,6 +391,17 @@ export async function unrestrictLink(accessToken: string, link: string, password
     accessToken,
     formBody: body,
   })
+}
+
+export async function unrestrictLinks(
+  accessToken: string,
+  links: string[],
+  onProgress?: (current: number, total: number) => void,
+) {
+  for (let i = 0; i < links.length; i++) {
+    await unrestrictLink(accessToken, links[i])
+    onProgress?.(i + 1, links.length)
+  }
 }
 
 export async function unrestrictFolder(accessToken: string, link: string) {
